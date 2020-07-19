@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <script src="js/jszip.min.js"></script>
+    <script src="js/epub.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
@@ -11,43 +12,10 @@
     <script>
         window.onload = () => {
             console.log("hi");
-            document.getElementById("file").addEventListener('change', (event) => {
-                let file = event.target.files[0];
-                if(file.type != "application/epub+zip") throw "incorrect type";
-                var ziper = new JSZip();
-
-                ziper.loadAsync(file).then(function(zip){
-                    let META_INF = zip.files["META-INF/container.xml"];
-                    if(META_INF == undefined) throw "meta info is not found";
-                    console.log(META_INF);
-                    META_INF.async("string").then(function(info){
-                        var doc = new DOMParser().parseFromString(info, 'text/xml');
-
-                        let rootfile = null; 
-                        for (let rootfileTry of doc.querySelectorAll("rootfile")) {
-                            if(rootfileTry.getAttribute("media-type") == "application/oebps-package+xml"){
-                                rootfile = rootfileTry;
-                                break;
-                            }
-                        }
-                        if(rootfile == null) throw "no rootfile";
-                        let path = rootfile.getAttribute("full-path");
-                        if(path == undefined) throw "no path in rootfile";
-
-                        let contentFile = zip.files[path];
-                        if(contentFile == undefined) throw "incorrect path";
-                        contentFile.async("string").then(function(content){
-                            console.log(content);
-                        });
-
-
-                        console.log({info, path, doc});
-                    });
-                },function(e){
-                    console.error("Error reading " + file.name + " : " + e.message);
-                });
-
-                console.log(file);
+            document.getElementById("file").addEventListener('change', async event => {
+                let epub = await new Epub(event.target.files[0]);
+                // await epub.init(epub.file);
+                console.log(epub);
             });
         }
     </script>
