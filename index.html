@@ -3,21 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <script src="js/jszip.min.js"></script>
+    <script src="js/metaworker.js"></script>
     <script src="js/epub.js"></script>
+    <script src="js/main.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
 <body style="background-color: black;">
     <input type="file" name="file" id="file">
-    <script>
-        window.onload = () => {
-            console.log("hi");
-            document.getElementById("file").addEventListener('change', async event => {
-                let epub = await new Epub(event.target.files[0]);
-                // await epub.init(epub.file);
-                console.log(epub);
-            });
-        }
-    </script>
+    <img src="test.png" alt="">
+    <div id="library">
+        
+    </div>
 </body>
 </html>
