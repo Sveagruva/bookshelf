@@ -1,0 +1,23 @@
+{
+  "name": "epub_reader",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "build": {
+    "appId": "your.id",
+    "mac": {
+      "category": "your.app.category.type"
+    }
+  },
+  "author": "sveagruva",
+  "license": "",
+  "devDependencies": {
+    "electron": "^9.1.0",
+    "electron-builder": "^22.7.0"
+  }
+}
