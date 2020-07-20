@@ -1,20 +1,17 @@
 const electron = require('electron');
-const {app, BrowserWindow} = electron;
+const {app, BrowserWindow, fs} = electron;
 const menu = electron.Menu;
-
 
 app.whenReady().then(() => {
     menu.setApplicationMenu(menu.buildFromTemplate([]));
     
-    const mainWindow = new BrowserWindow({width: 800, height: 600});
+    const mainWindow = new BrowserWindow({width: 800, height: 600, frame: false, minWidth: 750, minHeight: 470, webPreferences: {
+        nodeIntegration: true
+    }});
     mainWindow.loadFile('index.html');
     mainWindow.webContents.openDevTools();
-  
-    app.on('activate', function () {
-        if (BrowserWindow.getAllWindows().length === 0) createWindow();
-    });
-})
 
-app.on('window-all-closed', function () {
-    app.quit();
-})
+    mainWindow.on('closed', () => {
+        app.quit();
+    });
+});
