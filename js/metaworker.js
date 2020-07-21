@@ -20,7 +20,7 @@ const dcContent = meta => {
     return meta.textContent;
 }
 
-const meta2array = metaD => {
+export default meta2array = metaD => {
     switch (metaCheck(metaD)){
         case "dc":
             return {

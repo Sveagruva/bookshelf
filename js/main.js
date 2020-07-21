@@ -1,5 +1,6 @@
 const {remote} = require('electron');
 const fs = remote.require('fs');
+const Epub = remote.require('./epub');
 
 console.log(remote.process.platform);
 let settingsPathLet;
@@ -20,9 +21,13 @@ fs.exists(settingsPath, (exists) => {
 
 window.onload = () => {
     document.getElementById("file").addEventListener('change', async event => {
-        let epub = await new Epub(event.target.files[0]);
-        // epub = null;
-        console.log(epub);
+        try {
+            var epub = await new Epub(event.target.files[0]);
+            console.log(epub);
+            console.log(epub.file);
+        } catch (error) {
+            console.error(error);
+        }
     });
 
     document.getElementById("close").addEventListener("click", () => {

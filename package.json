@@ -8,16 +8,15 @@
     "pack": "electron-builder --dir",
     "dist": "electron-builder"
   },
-  "build": {
-    "appId": "your.id",
-    "mac": {
-      "category": "your.app.category.type"
-    }
-  },
-  "author": "sveagruva",
+  "author": "Sveagruva",
   "license": "",
   "devDependencies": {
     "electron": "^9.1.0",
     "electron-builder": "^22.7.0"
+  },
+  "dependencies": {
+    "jszip": "3.5.0",
+    "xml-js": "1.6.11",
+    "util": "0.12.3"
   }
 }

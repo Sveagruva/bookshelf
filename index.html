@@ -2,101 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <script src="js/jszip.min.js"></script>
-    <script src="js/metaworker.js"></script>
-    <script src="js/epub.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/library.css">
     <script src="js/main.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <style>
-        *, *::before, *::after{
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root{
-            --hh: 30px;
-            --accent: #343538;
-            --text: white;
-        }
-
-        header{
-            height: var(--hh);
-            width: 100%;
-            -webkit-app-region: drag;
-            display: flex;
-            justify-content: space-between;
-            background-color: var(--accent);
-        }
-
-        header .controls{
-            -webkit-app-region: no-drag;
-            display: flex;
-        }
-
-        header .controls>div{
-            width: 46px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        header .controls>div>span{
-            width: 16px;
-            height: 16px;
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        #minimize:before {
-            content: "";
-            display: block;
-            height: 1px;
-            width: 12px;
-            background-color: var(--text);
-        }
-
-        #size_changer span::before {
-            content: "";
-            width: 10px;
-            height: 10px;
-            display: block;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 11 11'%3E%3Crect x='0.5' y='0.5' width='10' height='10' style='fill:none;stroke:%23fff;stroke-miterlimit:10'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-        }
-
-        #size_changer[full=true] span::before {
-            width: 12px;
-            height: 12px;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpolyline points='3.5 3.5 0.5 3.5 0.5 13.5 10.5 13.5 10.5 10.5 13.5 10.5 13.5 0.5 3.5 0.5 3.5 3.5 10.5 3.5 10.5 10.5' style='fill:none;stroke:%23fff;stroke-miterlimit:10; stroke-width:1'/%3E%3C/svg%3E");
-        }
-
-        #close span::before{
-            content: "";
-            width: 10px;
-            height: 10px;
-            display: block;
-            background-repeat: no-repeat;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7.78 7.78'%3E%3Cline x1='0.35' y1='0.35' x2='7.42' y2='7.42' style='fill:none;stroke:%23fff;stroke-miterlimit:10'/%3E%3Cline x1='7.42' y1='0.35' x2='0.35' y2='7.42' style='fill:none;stroke:%23fff;stroke-miterlimit:10'/%3E%3C/svg%3E");
-        }
-
-        #size_changer:hover, #minimize:hover{
-            background-color: rgba(255,255,255,.1);
-        }
-
-        #close:hover{
-            background-color: rgba(232,17,35,.9);
-        }
-
-        #content{
-            height: calc(100vh - var(--hh));
-            position: relative;
-        }
-
-    </style>
+    <title>Epubreader</title>
 </head>
 <body style="background-color: black;">
     <header>
@@ -112,11 +22,84 @@
         </div>
     </header>
     <div id="content">
+        <style>
+            #file{
+                position: absolute;
+                z-index: 10000;
+                top: 0;
+                left: 0;
+            }
+        </style>
         <input type="file" name="file" id="file">
         <!-- <img src="epub://test.png" alt=""> -->
         <div id="library">
-            
+            <div id="books" view="list" description="false">
+                <!-- bookshelf list -->
+                <div class="book">
+                    <div class="click_area"></div>
+                    <div class="cover">
+                        <img src="cover.jpg" alt="">
+                    </div>
+                    <div class="info">
+                        <div class="name">Harry Potter and the methods of rationality</div>
+                        <div class="autor">Eliezer Yudkowsky</div>
+                        <div class="progress"><div style="width: 70%;">70%</div></div>
+                        <div class="time">2003</div>
+                        <div class="description">Lorem ipsum dolor sit amet consectetur adipisicing elit. Molestias ullam possimus, necessitatibus illo aperiam adipisci assumenda explicabo, accusantium maxime, eligendi officia incidunt est expedita in quibusdam id. Nulla, magni non!Repellendus beatae ipsa nisi repudiandae impedit necessitatibus deserunt minus similique</div>
+                    </div>
+                </div>                
+                <div class="book">
+                    <div class="click_area"></div>
+                    <div class="cover">
+                        <img src="cover.jpg" alt="">
+                    </div>
+                    <div class="info">
+                        <div class="name">Harry Potter and the methods of rationality</div>
+                        <div class="autor">Eliezer Yudkowsky</div>
+                        <div class="progress"><div style="width: 70%;">70%</div></div>
+                        <div class="time">2003</div>
+                        <div class="description">Lorem ipsum dolor sit amet consectetur adipisicing elit. Molestias ullam possimus, necessitatibus illo aperiam adipisci assumenda explicabo, accusantium maxime, eligendi officia incidunt est expedita in quibusdam id. Nulla, magni non!Repellendus beatae ipsa nisi repudiandae impedit necessitatibus deserunt minus similique</div>
+                    </div>
+                </div>
+                <div class="book">
+                    <div class="click_area"></div>
+                    <div class="cover">
+                        <img src="cover.jpg" alt="">
+                    </div>
+                    <div class="info">
+                        <div class="name">Harry Potter and the methods of rationality</div>
+                        <div class="autor">Eliezer Yudkowsky</div>
+                        <div class="progress"><div style="width: 70%;">70%</div></div>
+                        <div class="time">2003</div>
+                        <div class="description">Lorem ipsum dolor sit amet consectetur adipisicing elit. Molestias ullam possimus, necessitatibus illo aperiam adipisci assumenda explicabo, accusantium maxime, eligendi officia incidunt est expedita in quibusdam id. Nulla, magni non!Repellendus beatae ipsa nisi repudiandae impedit necessitatibus deserunt minus similique</div>
+                    </div>
+                </div>
+            </div>
+            <div id="info">
+                <!-- <div class="cover">
+                    <img src="cover.jpg" alt="">
+                </div> -->
+                <div class="meta">
+                    <div class="title">asdfasdf</div>
+                    <div class="creator">asdfasdf</div>
+                    <div class="time">2004r</div>
+                    <div class="description">Lorem ipsum dolor sit amet consectetur adipisicing elit. Molestias ullam possimus, necessitatibus illo aperiam adipisci assumenda explicabo, accusantium maxime, eligendi officia incidunt est expedita in quibusdam id. Nulla, magni non!Repellendus beatae ipsa nisi repudiandae impedit necessitatibus deserunt minus similique laborum facilis cumque mollitia, doloribus labore, officiis reiciendis sint! Ducimus dolores pariatur et, omnis doloremque quo aliquam recusandae perferendis praesentium?</div>
+                </div>
+                <div class="continue">continue</div>
+            </div>
         </div>
+        <script>
+            document.querySelectorAll(".book .click_area").forEach(book => {
+                book.addEventListener('click', book => {
+                    book = book.target.parentElement;
+                    document.querySelector("#info .meta .title").textContent = book.getAttribute("title");
+                    document.querySelector("#info .meta .creator").textContent = book.getAttribute("autor");
+                    document.querySelector("#info .meta .time").textContent = book.getAttribute("time");
+                    document.querySelector("#info .meta .description").textContent = book.getAttribute("description");
+                    console.log(book);
+                });
+            });
+        </script>
     </div>
 </body>
 </html>
