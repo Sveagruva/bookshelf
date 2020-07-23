@@ -5,11 +5,12 @@ const parser = require('xml-js');
 
 const readFile = util.promisify(fs.readFile);
 
-module.exports = class Epub{constructor(file){
-    if(file.type != "application/epub+zip") throw "incorrect type";
-    // return this;
+module.exports = class {constructor(file){
     this.file = file;
-    return (async (fileFake) => {
+    let name = file.split('\\').pop().split('/').pop();
+    this.name = name.substring(0, name.lastIndexOf("."));
+    name = null;
+    return (async (file) => {
         try{
             var ziper = new JSZip();
         }catch(ex){
@@ -21,8 +22,8 @@ module.exports = class Epub{constructor(file){
         var root = "";
         var meta = Array();
         var spine = Array();
-
-        await readFile(fileFake.path).then(async data => {
+        console.log(file);
+        await readFile(file).then(async data => {
             await ziper.loadAsync(data).then(async function(zip){
                 content = zip.files;
                 let META_INF = zip.files["META-INF/container.xml"];
@@ -84,7 +85,7 @@ module.exports = class Epub{constructor(file){
                     });
                 });
             }, function(e){
-                throw "Error while reading " + file.name + " with: " + e.message;
+                throw "Error while reading " + file + " with: " + e.message;
             });
         });
 

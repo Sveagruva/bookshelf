@@ -14,6 +14,10 @@ html{
     --text: white;
 }
 
+body{
+    background-color: var(--primary);
+}
+
 header{
     height: var(--hh);
     width: 100%;

@@ -1,4 +1,4 @@
-:root{
+html{
     --library-gap: 10px;
     --list-height: 60px;
 }
@@ -63,6 +63,7 @@
     grid-template-columns: repeat(auto-fit, minmax(180px, max-content));
     grid-auto-rows: 1fr;
     grid-template-rows: auto;
+    min-width: calc(200px + 2 * var(--library-gap));
     padding: var(--library-gap);
     padding-bottom: 0;
     column-gap: var(--library-gap);
@@ -208,4 +209,9 @@
 #books[view=bookshelf] .book .info .progress>div{
     background-color: var(--success);
     height: 100%;
+    font-size: 0;
+}
+
+#books[view=bookshelf] .book .info .autor, #books[view=bookshelf] .book .info .time, #books[view=bookshelf] .book .info .description{
+    display: none;
 }
