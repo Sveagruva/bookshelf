@@ -1,29 +1,22 @@
 const JSZip = require('jszip');
 const fs = require('fs');
-const util = require('util');
 const parser = require('xml-js');
 
-const readFile = util.promisify(fs.readFile);
-
-module.exports = class {constructor(file){
+module.exports = class{constructor(file){
     this.file = file;
     let name = file.split('\\').pop().split('/').pop();
     this.name = name.substring(0, name.lastIndexOf("."));
     name = null;
     return (async (file) => {
-        try{
-            var ziper = new JSZip();
-        }catch(ex){
-            throw "can't create JSZip object";
-        }
+        var ziper = new JSZip();
 
         var manifest = {};
         var content;
         var root = "";
         var meta = Array();
         var spine = Array();
-        console.log(file);
-        await readFile(file).then(async data => {
+        // there so much promises but I'm too lazy to refactor it :)
+        await fs.promises.readFile(file).then(async data => {
             await ziper.loadAsync(data).then(async function(zip){
                 content = zip.files;
                 let META_INF = zip.files["META-INF/container.xml"];
@@ -43,16 +36,13 @@ module.exports = class {constructor(file){
                     if(contentFile == undefined) throw "incorrect path";
                     if(path.includes("/")) root = path.slice(0, path.lastIndexOf("/") + 1);
                     await contentFile.async("string").then(function(contentAsync){
-    
                         let json = JSON.parse(parser.xml2json(contentAsync));
                         json = json.elements[0].elements;
     
                         const getObjectByName = (obj, name) => {
                             var index = null;
                             obj.forEach((e, i) => {
-                                if(e.name == name){
-                                    index = i;
-                                }
+                                if(e.name == name) index = i;
                             });
                             if(index == null) throw "can't found: " + name;
                             return obj[index];
@@ -85,10 +75,9 @@ module.exports = class {constructor(file){
                     });
                 });
             }, function(e){
-                throw "Error while reading " + file + " with: " + e.message;
+                throw "can't read " + file + " cz of this error: " + e.message;// Good code in my blood
             });
         });
-
 
         this.content = content;
         this.manifest = manifest;

@@ -1,0 +1,68 @@
+<div id="library">
+    <div id="books" view="bookshelf" description="false">
+        <!-- bookshelf list -->
+        <div class="book">
+            <div class="click_area"></div>
+            <div class="cover">
+                <img src="/app/cover.jpg" alt="">
+            </div>
+            <div class="info">
+                <div class="name">Harry Potter and the methods of rationality</div>
+                <div class="autor">Eliezer Yudkowsky</div>
+                <div class="progress"><div style="width: 70%;">70%</div></div>
+                <div class="time">2003</div>
+                <div class="description">Lorem ipsum dolor sit amet consectetur adipisicing elit. Molestias ullam possimus, necessitatibus illo aperiam adipisci assumenda explicabo, accusantium maxime, eligendi officia incidunt est expedita in quibusdam id. Nulla, magni non!Repellendus beatae ipsa nisi repudiandae impedit necessitatibus deserunt minus similique</div>
+            </div>
+        </div>                
+        <div class="book">
+            <div class="click_area"></div>
+            <div class="cover">
+                <img src="/app/cover.jpg" alt="">
+            </div>
+            <div class="info">
+                <div class="name">Harry Potter and the methods of rationality</div>
+                <div class="autor">Eliezer Yudkowsky</div>
+                <div class="progress"><div style="width: 70%;">70%</div></div>
+                <div class="time">2003</div>
+                <div class="description">Lorem ipsum dolor sit amet consectetur adipisicing elit. Molestias ullam possimus, necessitatibus illo aperiam adipisci assumenda explicabo, accusantium maxime, eligendi officia incidunt est expedita in quibusdam id. Nulla, magni non!Repellendus beatae ipsa nisi repudiandae impedit necessitatibus deserunt minus similique</div>
+            </div>
+        </div>
+        <div class="book">
+            <div class="click_area"></div>
+            <div class="cover">
+                <img src="/app/cover.jpg" alt="">
+            </div>
+            <div class="info">
+                <div class="name">Harry Potter and the methods of rationality</div>
+                <div class="autor">Eliezer Yudkowsky</div>
+                <div class="progress"><div style="width: 70%;">70%</div></div>
+                <div class="time">2003</div>
+                <div class="description">Lorem ipsum dolor sit amet consectetur adipisicing elit. Molestias ullam possimus, necessitatibus illo aperiam adipisci assumenda explicabo, accusantium maxime, eligendi officia incidunt est expedita in quibusdam id. Nulla, magni non!Repellendus beatae ipsa nisi repudiandae impedit necessitatibus deserunt minus similique</div>
+            </div>
+        </div>
+    </div>
+    <div id="info">
+        <!-- <div class="cover">
+            <img src="cover.jpg" alt="">
+        </div> -->
+        <div class="meta">
+            <div class="title">asdfasdf</div>
+            <div class="creator">asdfasdf</div>
+            <div class="time">2004r</div>
+            <div class="description">Lorem ipsum dolor sit amet consectetur adipisicing elit. Molestias ullam possimus, necessitatibus illo aperiam adipisci assumenda explicabo, accusantium maxime, eligendi officia incidunt est expedita in quibusdam id. Nulla, magni non!Repellendus beatae ipsa nisi repudiandae impedit necessitatibus deserunt minus similique laborum facilis cumque mollitia, doloribus labore, officiis reiciendis sint! Ducimus dolores pariatur et, omnis doloremque quo aliquam recusandae perferendis praesentium?</div>
+        </div>
+        <div class="continue" book="">continue</div>
+    </div>
+</div>
+<script>
+    document.querySelectorAll(".book .click_area").forEach(book => {
+        book.addEventListener('click', book => {
+            book = book.target.parentElement;
+            document.querySelector("#info .meta .title").textContent = book.querySelector(".info .name").textContent;
+            document.querySelector("#info .meta .creator").textContent = book.querySelector(".info .autor").textContent;
+            document.querySelector("#info .meta .time").textContent = book.querySelector(".info .time").textContent;
+            document.querySelector("#info .meta .description").textContent = book.querySelector(".info .description").textContent;
+            console.log(book);
+        });
+    });
+</script>
