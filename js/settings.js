@@ -11,12 +11,12 @@ module.exports = class{
         this.settingsPath = settingsPath;
 
         var settings;
-        if(fs.existsSync(settingsPath)){
+        if(!fs.existsSync(settingsPath)){
             let defaultSettings = this.getDefault();
             fs.writeFile(settingsPath, JSON.stringify(defaultSettings), e => e);
             settings = defaultSettings; 
         }else{
-            settings = fs.readFileSync(settingsPath, "utf-8");
+            settings = JSON.parse(fs.readFileSync(settingsPath, "utf-8"));
         }
         this.settings = settings;
     }
@@ -42,9 +42,17 @@ module.exports = class{
                 "library-gap": "10px",
                 "list-height": "60px",
                 "book-padding": "50px",
-                "font-family": "Arial"
+                "font-family": "Arial",
+                "pages-gap": "28"
             },
-            library: libraryPath
+            library: {
+                "path": libraryPath,
+                "view": "bookshelf",
+                "background": "none"
+            },
+            book: {
+                "view": "book"
+            }
         }
 
         return defaultSettings;

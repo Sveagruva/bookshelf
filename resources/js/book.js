@@ -1,39 +1,86 @@
-const { ipcRenderer } = require('electron');
-
-var dev;
+class Mount{constructor(point, index, page, direction){
+    this.point = point;
+    this.index = index;
+    this.page = page;
+    this.direction = direction;
+}}
 
 class Watcher{
     constructor(){
-        this.observer = new IntersectionObserver(entries => console.log(entries), { threshold: [0.0000001, 1] });
+        this.observer = new IntersectionObserver(entries => {
+            if(resizing) return;
+            let toppest;
+            for (let i = 0; i < entries.length; i++) {
+                toppest = i;
+                if(entries[i].isIntersecting) break;
+            }
+
+            mount.point = entries[toppest].target;
+
+            let max = this.container.length;
+            let index = mount.index;
+            while(max > index && index > -1){
+                if(this.container[index] === mount.point){
+                    mount.index = index;
+                    break;
+                }
+
+                index += this.direction ? 1 : -1;
+            }
+        }, {threshold: [0.8]});
     }
 
-    watch(container, callback){
-        if(callback !== undefined) this.callback = callback;
+    watch(container, dir){
         if(this.container !== undefined) container.forEach(element => this.observer.unobserve(element));
         this.container = container;
         container.forEach(element => this.observer.observe(element));
+        mount.index = dir ? 0 : container.length;
     }
 }
 
+var mount = new Mount(0, 0, 0, true);
+var resizing = false;
 const watcher = new Watcher();
+var timeoutResize;
+
+window.addEventListener("resize", () => {
+    if(resizing){
+        clearTimeout(timeoutResize);
+    }
+    resizing = true;
+    let mountLocal = Object.assign({}, mount);
+    let current = document.querySelector("#book iframe[visible=true]");
+    current.contentWindow.scroll({
+        left: Math.floor(watcher.container[mountLocal.index].offsetLeft/(current.contentDocument.body.clientWidth + gap))*(current.contentDocument.body.clientWidth + gap)
+    });
+    setTimeout(() => {
+        mount = Object.assign({}, mountLocal);
+    }, 10);
+
+    timeoutResize = window.setTimeout(() => {
+        resizing = false;
+    }, 25);
+});
+
+const allChilds = (element, array) => {
+    let children = element.childNodes;
+    let bool = true;
+    for(let i=0; i < children.length; i++) {
+        if (children[i].nodeType == 1){
+            bool = false;
+            array = allChilds(children[i], array);
+        }
+    }
+    if(bool) array.push(element);
+    return array;
+}
 
 String.prototype.toElm = function(){
     var div = document.createElement('div');
     div.innerHTML = this;
 
     return div.firstChild;
-    if(number === undefined){
-        return div.firstChild;
-    }else{
-        try {
-            return div.childNodes[number];
-        }catch(e){
-            return div.firstChild;
-        }
-    }
 }
-
-var gap = 28;
 
 const createIframe = (appOrBefore, parent, scr, hr) => {
     var ifrm = document.createElement("iframe");
@@ -79,6 +126,7 @@ const addStandardStyles = iframe => {
             column-count: 2 !important;
             overflow: hidden;
             color: white;
+            font-family: ${fontFamily};
         }
 
         html{
@@ -103,7 +151,6 @@ window.onload = async () => {
     content.appendChild(forward);
 
 
-    // lame I know
     var backButton = document.createElement("div");
     back.appendChild(backButton);
     back.classList.add("side");
@@ -114,7 +161,7 @@ window.onload = async () => {
     var forwardButton = document.createElement("div");
     forward.appendChild(forwardButton);
     forward.classList.add("side");
-    forwardButton.appendChild((arrowSvg.toElm()));
+    forwardButton.appendChild(arrowSvg.toElm());
     forward.style.position = "absolute";
 
 
@@ -158,40 +205,23 @@ window.onload = async () => {
 
     //          loading
     // first load
-    let ifrm = createIframe(true, bookElm, spine[0], "0");
-    ifrm.onload = e => addStandardStyles(e.target);
+    var ifrm = createIframe(true, bookElm, spine[0], "0");
+    ifrm.onload = e => {
+        addStandardStyles(e.target);
+        watcher.watch(allChilds(e.target.contentDocument.body, new Array()), true);
+    }
     setVisible(ifrm);
     if(spine.length > 1){
         ifrm = createIframe(true, bookElm, spine[1], "1");
         ifrm.onload = e => addStandardStyles(e.target);
         setHide(ifrm);
     }
-    //loading
+    // first load
 
-    // dev = ifrm;
-
-    // settings or whatever 
-
-    // settings or whatever
-
-    const allChilds = (element, array) => {
-        let children = element.childNodes;
-        let bool = true;
-        for(let i=0; i < children.length; i++) {
-            if (children[i].nodeType == 1){
-                bool = false;
-                array = allChilds(children[i], array);
-            }
-        }
-        if(bool) array.push(element);
-        return array;
-    }
 
     const nextIf = current => {
         let newOne = document.querySelector("#book>iframe:last-child");
-        watcher.watch(allChilds(newOne.contentDocument.body, new Array()), entries => {
-            console.log(entries);
-        });
+        watcher.watch(allChilds(newOne.contentDocument.body, new Array()), true);
         if(current === newOne) return;
         setVisible(newOne);
         dev = newOne;
@@ -202,12 +232,14 @@ window.onload = async () => {
         let hr = parseInt(newOne.getAttribute("hr"));
         if(hr == spine.length - 1) return;
         ifrm = createIframe(true, bookElm, spine[hr + 1], hr + 1);
+        mount.page = hr + 1;
         ifrm.onload = e => addStandardStyles(e.target);
         setHide(ifrm);
     }
 
     const prevIf = current => {
         let newOne = document.querySelector("#book>iframe:first-child");
+        watcher.watch(allChilds(newOne.contentDocument.body, new Array()), false);
         if(current === newOne) return;
         setVisible(newOne);
         try{
@@ -217,6 +249,7 @@ window.onload = async () => {
         let hr = parseInt(newOne.getAttribute("hr"));
         if(hr == 0) return;
         ifrm = createIframe(false, newOne, spine[hr - 1], hr - 1);
+        mount.page = hr - 1;
         ifrm.onload = e => {
             addStandardStyles(e.target);
             e.target.contentWindow.scroll({
@@ -229,20 +262,22 @@ window.onload = async () => {
 
 
     const moveForward = () => {
+        watcher.direction = true;
         let current = document.querySelector("#book iframe[visible=true]");
         let body = current.contentDocument.body;
         if(body.clientWidth >= body.scrollWidth || current.contentWindow.pageXOffset + body.clientWidth == body.scrollWidth) return nextIf(current);
         current.contentWindow.scroll({
-            left: body.clientWidth + current.contentWindow.pageXOffset + gap
+            left: Math.floor((body.clientWidth + current.contentWindow.pageXOffset + gap)/(body.clientWidth + gap))*(body.clientWidth + gap)
         });
     }
 
     const moveBack = () => {
+        watcher.direction = false;
         let current = document.querySelector("#book iframe[visible=true]");
         let body = current.contentDocument.body;
         if(body.clientWidth >= body.scrollWidth || current.contentWindow.pageXOffset == 0) return prevIf(current);
         current.contentWindow.scroll({
-            left: current.contentWindow.pageXOffset - body.clientWidth - gap
+            left: Math.floor((current.contentWindow.pageXOffset - body.clientWidth - gap)/(body.clientWidth + gap))*(body.clientWidth + gap)
         });
     }
 

@@ -33,27 +33,18 @@ app.whenReady().then(async () => {
 
     //TODO change to async load
     var style = fs.readFileSync('resources/css/style.css', "utf8");
-    var controls = fs.readFileSync('resources/js/controls.js', "utf8");
 
-    const html = new htmlBuilder(style, controls);
-    style = null; controls = null;
+    const html = new htmlBuilder(settings["css"], "",  fs.readFileSync('resources/js/controls.js', "utf8"));
 
     var libraryCSS = fs.readFileSync('resources/css/library.css', "utf8");
     var libraryScript = fs.readFileSync('resources/js/library.js', "utf-8");
     var libraryHTML = fs.readFileSync('resources/html/library.html', "utf-8");
-
-    var settingsCSS = fs.readFileSync('resources/css/settings.css', "utf-8");
-    var settingsScript = fs.readFileSync('resources/js/settingsScript.js', "utf-8");
-    var settingsHTML = fs.readFileSync('resources/html/settings.html', "utf-8");
 
     var bookCss = fs.readFileSync('resources/css/book.css', "utf-8");
     var bookScript = fs.readFileSync('resources/js/book.js', "utf-8");
 
 
     //initialize 
-    //                  load settings 
-
-    //load settings 
 
 
     menu.setApplicationMenu(menu.buildFromTemplate([]));
@@ -62,10 +53,16 @@ app.whenReady().then(async () => {
         enableRemoteModule: true
     }});
 
+    mainWindow.webContents.on('did-finish-load', function() {
+        mainWindow.webContents.insertCSS(style);
+    });
+
     mainWindow.setIcon('icon.ico');
 
-
     mainWindow.loadFile("/app/library.html");
+
+
+
     mainWindow.webContents.openDevTools();
 
     mainWindow.on('closed', () => {
@@ -83,7 +80,7 @@ app.whenReady().then(async () => {
             if(request == "library.html"){
                 response = html.Page(libraryCSS, libraryScript, libraryHTML);
             }else{
-                response = html.Page(settingsCSS, settingsScript, settingsHTML);
+                response = html.Page("", "", "");
             }
 
             callback({
@@ -101,12 +98,8 @@ app.whenReady().then(async () => {
                     }
                 });
 
-                // for (let i = 0; i < 4; i++) {
-                //     code += `<iframe src="/book/${book.name + book.root}/${book.manifest[book.spine[i]].href}"></iframe>`;
-                // }
-    
                 callback({
-                    data: html.Page(bookCss, `var spine = ${JSON.stringify(spine)};` + bookScript, undefined).toBuffer()
+                    data: html.Page(bookCss, `var spine = ${JSON.stringify(spine)};var gap = ${settings["css"]["pages-gap"]}; var fontFamily = \`${settings["css"]["font-family"]}\`;` + bookScript, undefined).toBuffer()
                 });
             }else{
                 book.content[request].async("nodebuffer").then(async function(info){
@@ -118,9 +111,9 @@ app.whenReady().then(async () => {
         }else if(request.slice(0, 8) == "openbook"){
             console.log(request.slice(8));
 
-            book = await new Epub(settings["library"] + "book.epub");
+            book = await new Epub(settings.library.path + "book.epub");
             // It's saying await has no effect but if you remove it all crash down!!!!
-
+            mainWindow.webContents.send('reload');
             mainWindow.loadFile("/book/app_book_" + book.name + ".html");
         }else{
             callback({
@@ -144,4 +137,7 @@ app.whenReady().then(async () => {
     Localshortcut.register(mainWindow, 'Left', () => {
         mainWindow.webContents.send('moveBack');
     });
+
+    mainWindow.on('unmaximize', () => mainWindow.webContents.executeJavaScript('document.getElementById("size_changer").setAttribute("full", "false");'));
+    mainWindow.on('maximize', () => mainWindow.webContents.executeJavaScript('document.getElementById("size_changer").setAttribute("full", "true");'));
 });

@@ -1,5 +1,6 @@
 module.exports = class htmlBuilder{
-    constructor(style, controls){
+    constructor(variables, style, controls){
+        this.variables = variables;
         this.style = style;
         this.controls = controls;
     }
@@ -13,12 +14,36 @@ module.exports = class htmlBuilder{
     }
 
     getHeader(stylesheet, script){
+        let varibs = "html{";
+        for (let key in this.variables) {
+            varibs += `--${key}: ${this.variables[key]};`; 
+        }
+        varibs += "}"
         return `
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <style>
+        ::-webkit-scrollbar {     
+            box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+            background-color:  rgba(0,0,0,.2);
+        }
+        
+        ::-webkit-scrollbar-button{
+            display: none;
+        }
+        
+        ::-webkit-resizer{
+            display: none;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background-color:  rgba(0,0,0,.3);
+        }
+
+        ${varibs}
+
         ${this.style}
 
         ${stylesheet}
@@ -34,7 +59,9 @@ module.exports = class htmlBuilder{
 </head>
 <body>
 <header>
-    <div id="topLogo"></div>
+    <div class="left_corner">
+        <div id="topLogo"><span></span></div>
+    </div>
     <div class="controls">
         <div id="minimize"></div>
         <div id="size_changer" full="false"><span></span></div>

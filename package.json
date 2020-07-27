@@ -1,15 +1,24 @@
 {
   "name": "epub_reader",
   "version": "1.0.0",
-  "description": "",
+  "description": "Organizes a library from your books and let you read them at any time",
   "main": "js/app.js",
   "scripts": {
     "start": "electron .",
     "pack": "electron-builder --dir",
     "dist": "electron-builder"
   },
+  "build": {
+    "appId": "sveagruva/epub_reader",
+    "extraResources": [
+      {
+        "from": "resources",
+        "to": ""
+      }
+    ]
+  },
   "author": "Sveagruva",
-  "license": "",
+  "license": "cc-by-nc-4.0",
   "devDependencies": {
     "electron": "^9.1.0",
     "electron-builder": "^22.7.0"

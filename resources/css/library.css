@@ -136,9 +136,9 @@ html{
     grid-template-columns: max-content max-content max-content max-content minmax(200px, auto);
 }
 
-#books[view=list] .book .progress>div{
+/* #books[view=list] .book .progress>div{
     width: 100% !important;
-}
+} */
 
 #books[view=list] .book .info>div:not(.description){
     display: flex;
@@ -198,18 +198,18 @@ html{
     z-index: 1;
 }
 
-#books[view=bookshelf] .book .info .progress{
+/* #books[view=bookshelf] .book .info .progress{
     position: absolute;
     top:0; right:0; bottom:0; left:0;
     height: 100%;
     z-index: -1;
-}
-
+} */
+/* 
 #books[view=bookshelf] .book .info .progress>div{
     background-color: var(--success);
     height: 100%;
     font-size: 0;
-}
+} */
 
 #books[view=bookshelf] .book .info .autor, #books[view=bookshelf] .book .info .time, #books[view=bookshelf] .book .info .description{
     display: none;
