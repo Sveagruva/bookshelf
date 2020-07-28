@@ -40,11 +40,21 @@ header .controls>div>span, header .left_corner>div>span{
     align-items: center;
 }
 
-#topLogo{
+body header .left_corner>div{
     height: 100%;
     width: var(--hh);
 }
 
+header .controls>div>span svg, header .left_corner>div>span svg{
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+body header .controls>div>span svg{
+    width: calc(var(--hh) / 3);
+    height: calc(var(--hh) / 3);
+}
 
 #topLogo span{
     display: block;
@@ -52,6 +62,13 @@ header .controls>div>span, header .left_corner>div>span{
     background-repeat: no-repeat;
 }
 
+#addBook span svg, #close span svg, #size_changer svg{
+    stroke: var(--text);
+}
+
+#settings svg{
+    fill: var(--text);
+}
 
 #minimize:before {
     content: "";
@@ -61,31 +78,15 @@ header .controls>div>span, header .left_corner>div>span{
     background-color: var(--text);
 }
 
-#size_changer span::before {
-    content: "";
-    width: calc(var(--hh) / 3);
-    height: calc(var(--hh) / 3);
-    display: block;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 11 11'%3E%3Crect x='0.5' y='0.5' width='10' height='10' style='fill:none;stroke:%23fff;stroke-miterlimit:10'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
+#size_changer[full=true] .one, #size_changer[full=false] .two{
+    display: none;
 }
 
-#size_changer[full=true] span::before {
-    width: calc(var(--hh) / 3);
-    height: calc(var(--hh) / 3);
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpolyline points='3.5 3.5 0.5 3.5 0.5 13.5 10.5 13.5 10.5 10.5 13.5 10.5 13.5 0.5 3.5 0.5 3.5 3.5 10.5 3.5 10.5 10.5' style='fill:none;stroke:%23fff;stroke-miterlimit:10; stroke-width:1'/%3E%3C/svg%3E");
+#size_changer[full=true] .two, #size_changer[full=false] .one{
+    display: flex;
 }
 
-#close span::before{
-    content: "";
-    width: calc(var(--hh) / 3);
-    height: calc(var(--hh) / 3);
-    display: block;
-    background-repeat: no-repeat;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7.78 7.78'%3E%3Cline x1='0.35' y1='0.35' x2='7.42' y2='7.42' style='fill:none;stroke:%23fff;stroke-miterlimit:10'/%3E%3Cline x1='7.42' y1='0.35' x2='0.35' y2='7.42' style='fill:none;stroke:%23fff;stroke-miterlimit:10'/%3E%3C/svg%3E");
-}
-
-#size_changer:hover, #minimize:hover, #topLogo:hover{
+.left_corner>div:hover, .controls>div:hover{
     background-color: rgba(255,255,255,.1);
 }
 
@@ -99,6 +100,10 @@ header .controls>div>span, header .left_corner>div>span{
     /* margin-top on child no longer appling to parent */
     padding-top: 1px;
     margin-top: -1px;
+}
+
+#content[blur=true]{
+    filter: blur(40px);
 }
 
 body, #library{

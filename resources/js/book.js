@@ -47,18 +47,20 @@ window.addEventListener("resize", () => {
     if(resizing){
         clearTimeout(timeoutResize);
     }
+    blurApp();
     resizing = true;
     let mountLocal = Object.assign({}, mount);
     let current = document.querySelector("#book iframe[visible=true]");
-    current.contentWindow.scroll({
-        left: Math.floor(watcher.container[mountLocal.index].offsetLeft/(current.contentDocument.body.clientWidth + gap))*(current.contentDocument.body.clientWidth + gap)
-    });
     setTimeout(() => {
+        current.contentWindow.scroll({
+            left: Math.floor(watcher.container[mountLocal.index].offsetLeft/(current.contentWindow.innerWidth + gap))*(current.contentWindow.innerWidth + gap)
+        });
         mount = Object.assign({}, mountLocal);
-    }, 10);
+    }, 20);
 
     timeoutResize = window.setTimeout(() => {
         resizing = false;
+        unblurApp();
     }, 25);
 });
 
@@ -205,6 +207,7 @@ window.onload = async () => {
 
     //          loading
     // first load
+    mount.page = 0;
     var ifrm = createIframe(true, bookElm, spine[0], "0");
     ifrm.onload = e => {
         addStandardStyles(e.target);
@@ -224,7 +227,6 @@ window.onload = async () => {
         watcher.watch(allChilds(newOne.contentDocument.body, new Array()), true);
         if(current === newOne) return;
         setVisible(newOne);
-        dev = newOne;
         try{
             document.querySelector("#book>iframe[visible=false]").remove();
         }catch(e){}
@@ -262,6 +264,7 @@ window.onload = async () => {
 
 
     const moveForward = () => {
+        saveState();
         watcher.direction = true;
         let current = document.querySelector("#book iframe[visible=true]");
         let body = current.contentDocument.body;
@@ -272,6 +275,7 @@ window.onload = async () => {
     }
 
     const moveBack = () => {
+        saveState();
         watcher.direction = false;
         let current = document.querySelector("#book iframe[visible=true]");
         let body = current.contentDocument.body;
@@ -286,4 +290,9 @@ window.onload = async () => {
 
     ipcRenderer.on('moveForward', moveForward);
     ipcRenderer.on('moveBack', moveBack);
+
+
+    const saveState = async () => {
+
+    }
 }

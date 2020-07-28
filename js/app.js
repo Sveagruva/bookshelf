@@ -12,6 +12,11 @@ const Setings = new Settings();
 var settings = Setings.getSettings();
 var book;
 
+var toRender = {
+    "libraryPath": `\"${settings.library.path.split("\\").join("\\\\")}\"`
+};
+// transfer this array as variables to render thr js
+
 var mime = {
     "html": 'text/html',
     "txt": 'text/plain',
@@ -21,7 +26,8 @@ var mime = {
     "png": 'image/png',
     "svg": 'image/svg+xml',
     "js": 'application/javascript',
-    "xhtml": 'application/xhtml+xml'
+    "xhtml": 'application/xhtml+xml',
+    "epub": "application/epub+zip"
 };
 
 String.prototype.toBuffer = function(){
@@ -30,8 +36,6 @@ String.prototype.toBuffer = function(){
 
 app.whenReady().then(async () => {
     //                  initialize so it load only one time
-
-    //TODO change to async load
     var style = fs.readFileSync('resources/css/style.css', "utf8");
 
     const html = new htmlBuilder(settings["css"], "",  fs.readFileSync('resources/js/controls.js', "utf8"));
@@ -42,8 +46,6 @@ app.whenReady().then(async () => {
 
     var bookCss = fs.readFileSync('resources/css/book.css', "utf-8");
     var bookScript = fs.readFileSync('resources/js/book.js', "utf-8");
-
-
     //initialize 
 
 
@@ -58,30 +60,21 @@ app.whenReady().then(async () => {
     });
 
     mainWindow.setIcon('icon.ico');
-
-    mainWindow.loadFile("/app/library.html");
-
-
-
+    mainWindow.loadFile("/library.html");
     mainWindow.webContents.openDevTools();
-
+    
     mainWindow.on('closed', () => {
         app.quit();
     });
 
     protocol.interceptBufferProtocol('file', async (request, callback) => {
-        // console.log(request);
         request = request.url.slice(6);
         request = request.slice(request.indexOf(":")+2);
-        if(request.slice(0,3) == "app"){
+        if(request.slice(0,7) == "library"){
             let response;
             request = request.slice(4);
 
-            if(request == "library.html"){
-                response = html.Page(libraryCSS, libraryScript, libraryHTML);
-            }else{
-                response = html.Page("", "", "");
-            }
+            response = html.Page(libraryCSS, libraryScript, libraryHTML, toRender);
 
             callback({
                 data: Buffer.from(response, 'utf8')
@@ -89,7 +82,6 @@ app.whenReady().then(async () => {
         }else if(request.slice(0,4) == "book"){
             request = request.slice(5);
 
-            // console.log("here: " + request);
             var spine = Array();
             if(request.slice(0, 9) == "app_book_"){
                 book.spine.forEach(e => {
@@ -99,7 +91,7 @@ app.whenReady().then(async () => {
                 });
 
                 callback({
-                    data: html.Page(bookCss, `var spine = ${JSON.stringify(spine)};var gap = ${settings["css"]["pages-gap"]}; var fontFamily = \`${settings["css"]["font-family"]}\`;` + bookScript, undefined).toBuffer()
+                    data: html.Page(bookCss, bookScript, undefined, Object.assign({},toRender, {"spine": JSON.stringify(spine), "gap": settings["css"]["pages-gap"], "fontFamily": `\`${settings["css"]["font-family"]}\``})).toBuffer()
                 });
             }else{
                 book.content[request].async("nodebuffer").then(async function(info){
@@ -115,6 +107,9 @@ app.whenReady().then(async () => {
             // It's saying await has no effect but if you remove it all crash down!!!!
             mainWindow.webContents.send('reload');
             mainWindow.loadFile("/book/app_book_" + book.name + ".html");
+        }else if(request.slice(0, 11) == "openLibrary"){
+            mainWindow.webContents.send('reload');
+            mainWindow.loadFile("/library.html");
         }else{
             callback({
                 data: "not found".toBuffer()
@@ -122,21 +117,10 @@ app.whenReady().then(async () => {
         }
     });
 
-    Localshortcut.register(mainWindow, 'Right', () => {
-        mainWindow.webContents.send('moveForward');
-    });
-
-    Localshortcut.register(mainWindow, 'Up', () => {
-        mainWindow.webContents.send('moveForward');
-    });
-
-    Localshortcut.register(mainWindow, 'Down', () => {
-        mainWindow.webContents.send('moveBack');
-    });
-
-    Localshortcut.register(mainWindow, 'Left', () => {
-        mainWindow.webContents.send('moveBack');
-    });
+    Localshortcut.register(mainWindow, 'Right', () => mainWindow.webContents.send('moveForward'));
+    Localshortcut.register(mainWindow, 'Up', () => mainWindow.webContents.send('moveForward'));
+    Localshortcut.register(mainWindow, 'Down', () => mainWindow.webContents.send('moveBack'));
+    Localshortcut.register(mainWindow, 'Left', () => mainWindow.webContents.send('moveBack'));
 
     mainWindow.on('unmaximize', () => mainWindow.webContents.executeJavaScript('document.getElementById("size_changer").setAttribute("full", "false");'));
     mainWindow.on('maximize', () => mainWindow.webContents.executeJavaScript('document.getElementById("size_changer").setAttribute("full", "true");'));

@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "electron-localshortcut": "^3.2.1",
+    "hidefile": "^3.0.0",
     "jszip": "3.5.0",
     "xml-js": "1.6.11"
   }

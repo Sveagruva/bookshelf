@@ -1,5 +1,6 @@
 const {app} = require('electron');
 const fs = require("fs");
+const hide = require("hidefile");
 
 module.exports = class{
     constructor(){
@@ -10,15 +11,49 @@ module.exports = class{
         settingsPath += "settings.json";
         this.settingsPath = settingsPath;
 
-        var settings;
+        let defaultSettings = this.getDefault();
+
         if(!fs.existsSync(settingsPath)){
-            let defaultSettings = this.getDefault();
             fs.writeFile(settingsPath, JSON.stringify(defaultSettings), e => e);
-            settings = defaultSettings; 
+            this.settings = defaultSettings; 
         }else{
-            settings = JSON.parse(fs.readFileSync(settingsPath, "utf-8"));
+            this.settings = JSON.parse(fs.readFileSync(settingsPath, "utf-8"));
         }
-        this.settings = settings;
+
+        this.setHiddenFolder(this.settings.library.path);
+    }
+
+    setHiddenFolder(libraryPath){
+        if(!fs.existsSync(libraryPath + ".epubreader")){
+            fs.mkdirSync(libraryPath + ".epubreader");
+            hide.hideSync(libraryPath + ".epubreader");
+        }
+
+        let coversPath;
+        if(process.platform === "win32") coversPath = libraryPath + ".epubreader\\covers";
+        else coversPath = libraryPath + ".epubreader/covers";
+
+        let booksPath;
+        if(process.platform === "win32") booksPath = libraryPath + ".epubreader\\book.json";
+        else booksPath = libraryPath + ".epubreader/book.json";
+
+
+        if(!fs.existsSync(coversPath)){
+            fs.mkdirSync(coversPath);
+        }
+
+        if(!fs.existsSync(booksPath)){
+            fs.writeFileSync(booksPath, "[]", e => e);
+        }
+    }
+
+    changeLibraryPaht(to){
+        this.settings.library.path = to;
+        this.writeDown();
+    }
+
+    writeDown(){
+        fs.writeFile(this.settingsPath, JSON.stringify(this.settings), e => e);
     }
 
     getSettings(){
