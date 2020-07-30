@@ -37,6 +37,13 @@ module.exports = class{
         if(process.platform === "win32") booksPath = libraryPath + ".epubreader\\book.json";
         else booksPath = libraryPath + ".epubreader/book.json";
 
+        let progressPath;
+        if(process.platform === "win32") progressPath = libraryPath + ".epubreader\\progress";
+        else progressPath = libraryPath + ".epubreader/progress";
+
+        if(!fs.existsSync(progressPath)){
+            fs.mkdirSync(progressPath);
+        }
 
         if(!fs.existsSync(coversPath)){
             fs.mkdirSync(coversPath);

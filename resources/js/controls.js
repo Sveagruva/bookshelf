@@ -17,7 +17,7 @@ const fileDialog = arg => {
         var e = document.createEvent('MouseEvents');
         e.initMouseEvent('click');
         input.dispatchEvent(e);
-    })
+    });
 }
 
 const close = () => {
@@ -57,12 +57,12 @@ const addBook = async () => {
                     nTry++;
                 }
 
-                // console.log(newPath, oldPath);
-
                 move(oldPath, newPath).then(() => {
                     done.push(i);
                     if(done.length == files.length){
-                        console.log("done !!!!!");
+                        var xhttp = new XMLHttpRequest();
+                        xhttp.open("GET", "/scan", true);
+                        xhttp.send();
                     }
                 });
             })(newPath, files[i].path);

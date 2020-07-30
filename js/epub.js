@@ -50,10 +50,12 @@ module.exports = class{constructor(file){
     
                         getObjectByName(json, "metadata").elements.forEach(e => {
                             if(e.name == "meta"){
-                                meta.push({
-                                    "name": e.attributes["name"],
-                                    "content": e.attributes["content"]
-                                });
+                                if(e.attributes["name"] !== undefined){
+                                    meta.push({
+                                        "name": e.attributes["name"],
+                                        "content": e.attributes["content"]
+                                    });
+                                }
                             }else if(e.name.slice(0, 3) == "dc:"){
                                 meta.push({
                                     "name": e.name.slice(3),
