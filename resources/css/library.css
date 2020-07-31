@@ -11,6 +11,10 @@
     display: flex;
 }
 
+#library .file{
+    display: none;
+}
+
 #info{
     max-width: 35%;
     min-width: 250px;
@@ -35,9 +39,13 @@
     background-color: var(--accent-focus-hover);
 }
 
+#info .meta>.title{
+    font-size: 30px;
+}
+
 #info .meta>*:not(.description){
     margin: 6px 0;
-    font-size: 23px;
+    font-size: 20;
 }
 
 #info .meta .description{
@@ -74,6 +82,7 @@
 
 .book{
     position: relative;
+    cursor: pointer;
 }
 
 #books[view=bookshelf] .book{
@@ -88,19 +97,6 @@
     display: flex;
     min-width: 100%;
     width: fit-content;
-}
-
-#books[view=bookshelf] .book .click_area{
-    position: absolute;
-    cursor: pointer;
-    z-index: 2;
-    background-color: transparent;
-    top: 0; right: 0; bottom: 0; left: 0;
-    width: 100%; height: 100%;
-}
-
-#books[view=list] .book .click_area{
-    display: none;
 }
 
 #books[view=list] .book .cover{
@@ -168,10 +164,6 @@
     font-size: 18px;
     background-color: var(--accent);
 }
-
-/* #books[view=list] .book .info{
-    display: flex;
-} */
 
 #books[view=bookshelf] .book .info{
     text-align: center;

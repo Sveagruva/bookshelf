@@ -4,9 +4,8 @@ const parser = require('xml-js');
 
 module.exports = class{constructor(file){
     this.file = file;
-    let name = file.split('\\').pop().split('/').pop();
-    this.name = name.substring(0, name.lastIndexOf("."));
-    name = null;
+    this.name = file.split('\\').pop().split('/').pop();
+    // this.name = name.substring(0, name.lastIndexOf("."));
     return (async (file) => {
         var ziper = new JSZip();
 

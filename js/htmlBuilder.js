@@ -1,14 +1,6 @@
 const fs = require("fs");
 
 module.exports = class htmlBuilder{    
-    Page(stylesheet, script, html, varibsJS){
-        if(stylesheet == undefined) stylesheet = "";
-        if(script == undefined) script = "";
-        if(html == undefined) html = "";
-
-        return this.getHeader(stylesheet, script, varibsJS) + html + this.getFooter();
-    }
-
     Library(){
         let libraryPath = this.settings.library.path;
         let booksPath;
@@ -16,40 +8,48 @@ module.exports = class htmlBuilder{
         else booksPath = libraryPath + ".epubreader/book.json";
 
         let books = JSON.parse(fs.readFileSync(booksPath, "utf-8"));
-        var html = '<div id="library"><div id="books" view="bookshelf" description="false"><!-- bookshelf list -->';
-        books.forEach(book => {
-            html += `<div class="book"><div class="click_area"></div><div class="cover"><img src="/cover/${book.file}.jpg"></div><div class="info">
-                    <div class="name">${book.name}</div>
-                    <div class="autor">${book.autor}</div>
-                    <div class="time">${book.time}</div>
-                    <div class="description">${book.description}</div>
-                </div></div>`;
-        });
-
-        html += `</div><div id="info">
-        <div class="meta">
-            <div class="title">asdfasdf</div>
-            <div class="creator">asdfasdf</div>
-            <div class="time">2004r</div>
-            <div class="description">Lorem ipsum dolor sit amet consectetur adipisicing elit. Molestias ullam possimus, necessitatibus illo aperiam adipisci assumenda explicabo, accusantium maxime, eligendi officia incidunt est expedita in quibusdam id. Nulla, magni non!Repellendus beatae ipsa nisi repudiandae impedit necessitatibus deserunt minus similique laborum facilis cumque mollitia, doloribus labore, officiis reiciendis sint! Ducimus dolores pariatur et, omnis doloremque quo aliquam recusandae perferendis praesentium?</div>
-        </div>
-        <div class="continue" book="">continue</div>
-    </div>
-</div>`;
+        let html = '<div id="library"><div id="books" view="bookshelf" description="false"></div><!-- bookshelf list --><div id="info"><div class="meta"><div class="title"></div><div class="creator"></div><div class="time"></div><div class="description"></div><div class="file"></div></div><div class="continue" book="">continue</div></div></div>';
     
-        return (this.getHeader(this.libraryCSS, this.libraryScript, this.toRender) + html + this.getFooter()).toBuffer();
+        return (this.getHeader(this.libraryCSS, this.libraryScript, Object.assign({}, this.toRender, {"books": books})) + html + this.getFooter()).toBuffer();
     }
 
-    Book(spine){
-        let varibsJS = Object.assign({},this.toRender, {"spine": JSON.stringify(spine), "gap": this.settings["css"]["pages-gap"], "fontFamily": `\`${this.settings["css"]["font-family"]}\``});
+    Book(spine, progress){
+        let varibsJS = Object.assign({},this.toRender, {"spine": JSON.stringify(spine), "progress": progress,"gap": this.settings["css"]["pages-gap"], "fontFamily": `\`${this.settings["css"]["font-family"]}\``});
         return (this.getHeader(this.bookCss, this.bookScript, varibsJS) + this.getFooter()).toBuffer();
     }
 
-    getHeader(stylesheet, script, varibsJS){
-        let varibsJ = "";
-        for (let key in varibsJS) {
-            varibsJ += `var ${key} = ${varibsJS[key]};`; 
+    setSettings(settings){
+        this.settings = settings;
+        this.toRender = this.get2Render();
+    }
+
+    getCssVaribles() {
+        let variables = this.settings["css"];
+        let varibs = "html{";
+        for (let key in variables) {
+            varibs += `--${key}: ${variables[key]};`; 
         }
+        return varibs += "}";
+    }
+
+    get2Render(){
+        return {"libraryPath": `${this.settings.library.path.split("\\").join("\\\\")}`};
+    }
+    
+    constructor(settings){
+        this.settings = settings;
+        this.controls = fs.readFileSync('resources/js/controls.js');
+        this.style = fs.readFileSync('resources/css/style.css', "utf8");
+
+        this.bookCss = fs.readFileSync('resources/css/book.css', "utf-8");
+        this.bookScript = fs.readFileSync('resources/js/book.js', "utf-8");
+        this.libraryCSS = fs.readFileSync('resources/css/library.css', "utf8");
+        this.libraryScript = fs.readFileSync('resources/js/library.js', "utf-8");
+        this.toRender = this.get2Render();
+    }
+
+    getHeader(stylesheet, script, varibsJS){
+        let varibsJ = "var varibs = " + JSON.stringify(varibsJS) + ";";
 
         return `
 <!DOCTYPE html>
@@ -57,23 +57,6 @@ module.exports = class htmlBuilder{
 <head>
     <meta charset="UTF-8">
     <style>
-        ::-webkit-scrollbar {     
-            box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
-            background-color:  rgba(0,0,0,.2);
-        }
-        
-        ::-webkit-scrollbar-button{
-            display: none;
-        }
-        
-        ::-webkit-resizer{
-            display: none;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background-color:  rgba(0,0,0,.3);
-        }
-
         ${this.getCssVaribles()}
 
         ${this.style}
@@ -81,7 +64,6 @@ module.exports = class htmlBuilder{
         ${stylesheet}
     </style>
     <script>
-
         ${varibsJ}
 
         ${this.controls}
@@ -110,35 +92,6 @@ module.exports = class htmlBuilder{
 
     getFooter(){
         return '</div></body></html>';
-    }
-
-    setSettings(settings){
-        this.settings = settings;
-    }
-
-    getCssVaribles() {
-        let variables = this.settings["css"];
-        let varibs = "html{";
-        for (let key in variables) {
-            varibs += `--${key}: ${variables[key]};`; 
-        }
-        return varibs += "}";
-    }
-
-    get2Render(){
-        return {"libraryPath": `\"${this.settings.library.path.split("\\").join("\\\\")}\"`};
-    }
-    
-    constructor(settings){
-        this.settings = settings;
-        this.controls = fs.readFileSync('resources/js/controls.js');
-        this.style = fs.readFileSync('resources/css/style.css', "utf8");
-
-        this.bookCss = fs.readFileSync('resources/css/book.css', "utf-8");
-        this.bookScript = fs.readFileSync('resources/js/book.js', "utf-8");
-        this.libraryCSS = fs.readFileSync('resources/css/library.css', "utf8");
-        this.libraryScript = fs.readFileSync('resources/js/library.js', "utf-8");
-        this.toRender = this.get2Render();
     }
 }
 

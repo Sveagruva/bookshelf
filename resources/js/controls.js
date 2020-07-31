@@ -47,7 +47,7 @@ const addBook = async () => {
         var done = Array();
         for (let i = 0; i < files.length; i++){
             if(files[i].type != "application/epub+zip") continue;
-            let newPath = libraryPath + files[i].path.split('\\').pop().split('/').pop();
+            let newPath = varibs.libraryPath + files[i].path.split('\\').pop().split('/').pop();
             if(newPath === files[i].path) continue;
             (async (Path, oldPath) => {
                 let newPath = Path;

@@ -5,6 +5,12 @@ class Mount{constructor(point, index, page, direction){
     this.direction = direction;
 }}
 
+const saveState = async () => {
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("GET", "/saveState/" + mount.page + "/" + mount.index, true);
+    xhttp.send();
+}
+
 class Watcher{
     constructor(){
         this.observer = new IntersectionObserver(entries => {
@@ -27,6 +33,8 @@ class Watcher{
 
                 index += this.direction ? 1 : -1;
             }
+
+            saveState();
         }, {threshold: [0.8]});
     }
 
@@ -34,10 +42,14 @@ class Watcher{
         if(this.container !== undefined) container.forEach(element => this.observer.unobserve(element));
         this.container = container;
         container.forEach(element => this.observer.observe(element));
-        mount.index = dir ? 0 : container.length;
+        mount.index = dir ? 0 : container.length - 1;
     }
 }
 
+const spine = JSON.parse(varibs.spine);
+const gap = parseInt(varibs.gap);
+const fontFamily = varibs.fontFamily;
+const progress = JSON.parse(varibs.progress);
 var mount = new Mount(0, 0, 0, true);
 var resizing = false;
 const watcher = new Watcher();
@@ -143,8 +155,6 @@ const addStandardStyles = iframe => {
 
 window.onload = async () => {
     var arrowSvg = '<svg xmlns="http://www.w3.org/2000/svg" style="display: block;" viewBox="0 0 9.06 16.21"><polyline points="0.35 0.35 8.35 8.35 0.85 15.85" style="fill:none;stroke:#000"/></svg>';
-
-    //       for future customization :)
     const content = document.getElementById("content");
 
     var back = document.createElement("div");
@@ -202,24 +212,35 @@ window.onload = async () => {
         ]
     ));
 
-
-    //for future customization
-
-    //          loading
-    // first load
-    mount.page = 0;
-    var ifrm = createIframe(true, bookElm, spine[0], "0");
+    mount.page = progress.page;
+    var ifrm = createIframe(true, bookElm, spine[mount.page], mount.page);
     ifrm.onload = e => {
         addStandardStyles(e.target);
         watcher.watch(allChilds(e.target.contentDocument.body, new Array()), true);
+        mount.index = progress.elm;
+        e.target.contentWindow.scroll({
+            left: Math.floor(watcher.container[progress.elm].offsetLeft/(e.target.contentWindow.innerWidth + gap))*(e.target.contentWindow.innerWidth + gap)
+        });
     }
+
     setVisible(ifrm);
+
+    if(mount.page > 0){
+        ifrm = createIframe(false, ifrm, spine[mount.page - 1], mount.page - 1);
+        ifrm.onload = e => {
+            addStandardStyles(e.target);
+            e.target.contentWindow.scroll({
+                left: e.target.contentDocument.body.scrollWidth
+            });
+        }
+        setHide(ifrm);
+    }
+
     if(spine.length > 1){
-        ifrm = createIframe(true, bookElm, spine[1], "1");
+        ifrm = createIframe(true, bookElm, spine[mount.page + 1], mount.page + 1);
         ifrm.onload = e => addStandardStyles(e.target);
         setHide(ifrm);
     }
-    // first load
 
 
     const nextIf = current => {
@@ -232,9 +253,10 @@ window.onload = async () => {
         }catch(e){}
         setHide(current);
         let hr = parseInt(newOne.getAttribute("hr"));
+        mount.page = hr;
+        saveState();
         if(hr == spine.length - 1) return;
         ifrm = createIframe(true, bookElm, spine[hr + 1], hr + 1);
-        mount.page = hr + 1;
         ifrm.onload = e => addStandardStyles(e.target);
         setHide(ifrm);
     }
@@ -249,9 +271,10 @@ window.onload = async () => {
         }catch(e){}
         setHide(current);
         let hr = parseInt(newOne.getAttribute("hr"));
+        mount.page = hr;
+        saveState();
         if(hr == 0) return;
         ifrm = createIframe(false, newOne, spine[hr - 1], hr - 1);
-        mount.page = hr - 1;
         ifrm.onload = e => {
             addStandardStyles(e.target);
             e.target.contentWindow.scroll({
@@ -264,7 +287,6 @@ window.onload = async () => {
 
 
     const moveForward = () => {
-        saveState();
         watcher.direction = true;
         let current = document.querySelector("#book iframe[visible=true]");
         let body = current.contentDocument.body;
@@ -275,7 +297,6 @@ window.onload = async () => {
     }
 
     const moveBack = () => {
-        saveState();
         watcher.direction = false;
         let current = document.querySelector("#book iframe[visible=true]");
         let body = current.contentDocument.body;
@@ -290,9 +311,4 @@ window.onload = async () => {
 
     ipcRenderer.on('moveForward', moveForward);
     ipcRenderer.on('moveBack', moveBack);
-
-
-    const saveState = async () => {
-
-    }
 }
