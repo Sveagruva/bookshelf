@@ -21,6 +21,10 @@ module.exports = class{
         }
 
         this.setHiddenFolder(this.settings.library.path);
+
+        if(!fs.existsSync(this.settings.app.backgroundsDir)){
+            fs.mkdirSync(this.settings.app.backgroundsDir);
+        }
     }
 
     setHiddenFolder(libraryPath){
@@ -72,15 +76,18 @@ module.exports = class{
         if(process.platform === "win32") libraryPath += "\\library\\";
         else libraryPath += "/library/";
 
-        var defaultSettings = {
+        var backgroundsDir;
+        if(process.platform === "win32") backgroundsDir = app.getPath('exe').slice(0, app.getPath('exe').lastIndexOf("\\") + 1) + "backgrounds\\";
+        else backgroundsDir = app.getPath('exe').slice(0, app.getPath('exe').lastIndexOf("/") + 1) + "backgrounds/";
+
+        var defaultSettings = { // for all posible options see publicSettings.js
             css: {
                 "primary": "#383838",
                 "accent": "#343538",
                 "accent-focus": "#52453e",
                 "accent-focus-hover": "#705c51",
-                "success": "green",
                 "hh": "30px",
-                "text": "white",
+                "text": "#ffffff",
                 "library-gap": "10px",
                 "list-height": "60px",
                 "book-padding": "50px",
@@ -90,10 +97,15 @@ module.exports = class{
             library: {
                 "path": libraryPath,
                 "view": "bookshelf",
-                "background": "none"
+                "background": false,
+                "order": "last_abc" // fitst part is last or none (exm none_abc) it means how to sort readed books. second part how to sort not read part (or all if first part is none), 
             },
             book: {
-                "view": "book"
+                "view": "two_pages",
+                "background": false
+            },
+            app: {
+                "backgroundsDir": backgroundsDir
             }
         }
 

@@ -9,6 +9,7 @@ const fileDialog = arg => {
     if(typeof arg !== undefined) {
         if(arg.multiple === true) input.setAttribute('multiple','');
         if(arg.accept !== undefined) input.setAttribute('accept',arg.accept);
+        if(arg.folder !== undefined) input.toggleAttribute('webkitdirectory');
     }
 
     return new Promise(resolve => {
@@ -36,11 +37,15 @@ const size_changer = () => {
     }
 }
 
-const toLibrary = () => {
+const sendRequest = url => {
     var xhttp = new XMLHttpRequest();
-    xhttp.open("GET", "/openLibrary", true);
+    xhttp.open("GET", url, true);
     xhttp.send();
 }
+
+const toLibrary = () => sendRequest("/openLibrary");
+const toSettings = () => sendRequest("/openSettings");
+const toBook = file => sendRequest("/openbook/" + file);
 
 const addBook = async () => {
     fileDialog({ multiple: true, accept: "application/epub+zip" }).then(files => {
@@ -83,14 +88,17 @@ const onload = () => {
 
     document.getElementById("addBook").addEventListener("click", addBook);
     document.getElementById("topLogo").addEventListener("click", toLibrary);
+    document.getElementById("settings").addEventListener("click", toSettings);
 }
 
 const gonnaClose = () => {
+    document.dispatchEvent(new Event("close"));
     document.getElementById("close").removeEventListener("click", close);
     document.getElementById("size_changer").removeEventListener("click", size_changer);
     document.getElementById("minimize").removeEventListener("click", minimize);
     document.getElementById("addBook").removeEventListener("click", addBook);
     document.getElementById("topLogo").removeEventListener("click", toLibrary);
+    document.getElementById("settings").removeEventListener("click", toSettings);
 }
 
 window.addEventListener("load", onload);

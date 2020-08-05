@@ -154,6 +154,10 @@ const addStandardStyles = iframe => {
 }
 
 window.onload = async () => {
+    if(varibs.bookBack){
+        document.getElementById("content").style.backgroundImage = 'url("/background/book.jpg")';
+    }
+
     var arrowSvg = '<svg xmlns="http://www.w3.org/2000/svg" style="display: block;" viewBox="0 0 9.06 16.21"><polyline points="0.35 0.35 8.35 8.35 0.85 15.85" style="fill:none;stroke:#000"/></svg>';
     const content = document.getElementById("content");
 

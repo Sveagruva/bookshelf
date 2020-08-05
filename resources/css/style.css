@@ -112,7 +112,7 @@ body header .controls>div>span svg{
 }
 
 #content{
-    height: calc(100vh - var(--hh));
+    height: calc(100vh - var(--hh) + 1px);
     position: relative; /* everyone depence on it */
     /* margin-top on child no longer appling to parent */
     padding-top: 1px;

@@ -8,17 +8,14 @@ const menu = electron.Menu;
 const Localshortcut = require('electron-localshortcut');
 const Settings = require('./settings');
 const scan = require("./scan");
-const Setings = new Settings();
+var Setings = new Settings();
 // const mime = require("./mime");
 
-var book;
-var progressPath;
-var progressBook;
+var book, progressPath, progressBook, booksPath, coversPath, libBack, bookBack;
 var currentPage = "library";
 
 var settings = Setings.getSettings();
 const html = new htmlBuilder(settings);
-
 
 app.whenReady().then(async () => {
     menu.setApplicationMenu(menu.buildFromTemplate([]));
@@ -29,6 +26,7 @@ app.whenReady().then(async () => {
 
     mainWindow.setIcon('icon.ico');
     await scan(settings.library.path, e => e);
+    updateBacks();
     mainWindow.loadFile("/library.html");
     mainWindow.webContents.openDevTools();
     
@@ -48,7 +46,7 @@ app.whenReady().then(async () => {
             callback({
                 data: Buffer.from("200", 'utf8')
             });
-        } else if(request.slice(0,7) == "library"){
+        }else if(request.slice(0,7) == "library"){
             currentPage = "library";
 
             callback({
@@ -64,10 +62,6 @@ app.whenReady().then(async () => {
             request = request.slice(6);
             request = request.slice(0, -4);
 
-            let coversPath;
-            if(process.platform === "win32") coversPath = settings.library.path + ".epubreader\\covers\\";
-            else coversPath = settings.library.path + ".epubreader/covers/";
-
             fs.readFile(coversPath + decodeURI(request) + ".bin", "utf-8", (err, img) => {
                 callback({
                     data: Buffer.from(img, 'base64')
@@ -78,6 +72,8 @@ app.whenReady().then(async () => {
             request = request.slice(9);
 
             book = await new Epub(settings.library.path + decodeURI(request));
+            setReadedNow(decodeURI(request));
+
             progressBook = fs.readFileSync(progressPath + book.name + ".bin", "utf-8");
 
             mainWindow.webContents.send('reload');
@@ -85,6 +81,19 @@ app.whenReady().then(async () => {
         }else if(request.slice(0, 11) == "openLibrary"){
             mainWindow.webContents.send('reload');
             mainWindow.loadFile("/library.html");
+        }else if(request.slice(0, 12) == "openSettings"){
+            currentPage = "settings";
+
+            mainWindow.webContents.send('reload');
+            mainWindow.loadFile("/settings.html");
+        }else if(request.slice(0, 8) == "settings"){
+            callback({
+                data: html.Settings(settings, Setings.settingsPath)
+            });
+        }else if(request.slice(0, 10) == "background"){
+            callback({
+                data: backgroundsData(request.slice(11))
+            });
         }else if(request.slice(0, 4) == "scan"){
             scan(settings.library.path, () => {
                 if(currentPage == "library"){
@@ -92,6 +101,14 @@ app.whenReady().then(async () => {
                     mainWindow.loadFile("/library.html");
                 }
             });
+        }else if(request.slice(0, 14) == "reloadSettings"){
+            Setings = new Settings();
+            settings = Setings.getSettings();
+            calcPaths(settings.library.path);
+            updateBacks();
+            html.setSettings(settings);
+            mainWindow.webContents.send('reload');
+            mainWindow.loadFile("/settings.html");
         }else{
             callback({
                 data: Buffer.from("not found", 'utf8')
@@ -102,9 +119,13 @@ app.whenReady().then(async () => {
     const bookHandler = request => {
         return new Promise(async resolve => {
             if(request.slice(0, 9) != "app_book_"){
-                await book.content[request].async("nodebuffer").then(info => {
-                    resolve(info);
-                });
+                try {
+                    await book.content[request].async("nodebuffer").then(info => {
+                        resolve(info);
+                    });
+                }catch(e){
+                    resolve(new Buffer.from("404", 'utf8'));
+                }
             }
     
             var spine = Array();
@@ -126,6 +147,46 @@ app.whenReady().then(async () => {
     mainWindow.on('unmaximize', () => mainWindow.webContents.executeJavaScript('document.getElementById("size_changer").setAttribute("full", "false");'));
     mainWindow.on('maximize', () => mainWindow.webContents.executeJavaScript('document.getElementById("size_changer").setAttribute("full", "true");'));
 
-    if(process.platform === "win32") progressPath = settings.library.path + ".epubreader\\progress\\";
-    else progressPath = settings.library.path + ".epubreader/progress/";
 });
+
+const setReadedNow = async file => {
+    let books = JSON.parse(fs.readFileSync(booksPath, "utf-8"));
+
+    books.forEach(book => {
+        if(book.file == file){
+            book.last_read = new Date();
+        }
+    });
+
+    fs.writeFile(booksPath, JSON.stringify(books), e=> e);
+}
+
+const backgroundsData = request => {
+    console.log("req");
+    if(request == "library.jpg") {
+        console.log("library");
+        return libraryBack;
+    }else if(request == "book.jpg"){
+        return bookBack;
+    }else{
+        return Buffer.from("not found", 'utf8');
+    }
+}
+
+const calcPaths = libPath => {
+    booksPath = libPath + (process.platform === "win32" ? ".epubreader/book.json" : ".epubreader\\book.json");
+    progressPath = libPath + (process.platform === "win32" ? ".epubreader\\progress\\" : ".epubreader/progress/");
+    coversPath = libPath + (process.platform === "win32" ? ".epubreader\\covers\\" : ".epubreader/covers/");
+}
+
+const updateBacks = () => {
+    if(settings.library.background){
+        libraryBack = fs.readFileSync(settings.app.backgroundsDir + settings.library.background);
+    }
+
+    if(settings.book.background){
+        bookBack = fs.readFileSync(settings.app.backgroundsDir + settings.book.background);
+    }
+}
+
+calcPaths(settings.library.path);

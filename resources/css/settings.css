@@ -1,0 +1,84 @@
+#settings_container{
+    height: 100%;
+    width: 100%;
+    overflow-y: auto;
+}
+
+#settings_container>form{
+    max-width: 950px;
+    margin: 0 auto;
+    padding: 20px 10px 0;
+    height: 100%;
+}
+
+#settings_container h2{
+    margin-left: -15px;
+    font-size: 32px;
+    text-transform: capitalize;
+}
+
+#settings_container .bar{
+    position: sticky;
+    width: 100%;
+    background-color: rgba(0,0,0, .3);
+    bottom: 0;
+    left: 0; top: 0;
+}
+
+#settings_container>form>*{
+    padding: 15px;
+    width: 100%;
+    display: block;
+}
+
+#settings_container .item{
+    background-color: var(--accent);
+    margin-bottom: 20px;
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+}
+
+#settings_container .value{
+    display: flex;
+}
+
+input[type=color]{
+    border: none;
+    background: transparent;
+    width: 30px;
+    height: 30px;
+}
+
+#settings_container .bar{
+    display: flex;
+    flex-direction: row-reverse;
+    padding: 7px;
+}
+
+#save{
+    display: inline-block;
+    user-select: none;
+    padding: 4px;
+    cursor: pointer;
+    background-color: var(--accent-focus);
+}
+
+#settings_container .remove{
+    cursor: pointer;
+    align-items: center;
+    display: flex;
+    padding: 2px;
+    margin-right: 20px;
+}
+
+#settings_container button{
+    cursor: pointer;
+}
+
+#settings_container .choose{
+    background-color: var(--accent-focus);
+    cursor: pointer;
+    padding: 4px;
+    user-select: none;
+}

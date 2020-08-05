@@ -2,19 +2,9 @@ const fs = require("fs");
 const Epub = require('./epub');
 
 module.exports = async (libraryPath, callback) => {
-    let booksPath;
-    if(process.platform === "win32") booksPath = libraryPath + ".epubreader\\book.json";
-    else booksPath = libraryPath + ".epubreader/book.json";
-
-    let coversPath;
-    if(process.platform === "win32") coversPath = libraryPath + ".epubreader\\covers\\";
-    else coversPath = libraryPath + ".epubreader/covers/";
-    
-    let progressPath;
-    if(process.platform === "win32") progressPath = libraryPath + ".epubreader\\progress\\";
-    else progressPath = libraryPath + ".epubreader/progress/";
-
-
+    let booksPath = libraryPath + (process.platform === "win32" ? ".epubreader/book.json" : ".epubreader\\book.json");
+    let progressPath = libraryPath + (process.platform === "win32" ? ".epubreader\\progress\\" : ".epubreader/progress/");
+    let coversPath = libraryPath + (process.platform === "win32" ? ".epubreader\\covers\\" : ".epubreader/covers/");
 
     let books = JSON.parse(fs.readFileSync(booksPath, "utf-8"));
 
@@ -66,7 +56,8 @@ module.exports = async (libraryPath, callback) => {
             "name": meta["title"],
             "autor": meta["creator"],
             "time": meta["date"],
-            "description": meta["description"]
+            "description": meta["description"],
+            "last_read": "never"
         });
 
         reading = null;

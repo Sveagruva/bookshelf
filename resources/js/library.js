@@ -25,16 +25,42 @@ window.onload = () => {
         info.appendChild(addText(createElementCl("time"), book.time));
         info.appendChild(addText(createElementCl("description"), book.description));
         info.appendChild(addText(createElementCl("file"), book.file));
+        info.appendChild(addText(createElementCl("last_read"), book.last_read));
 
         bookElm.appendChild(info);
 
         return bookElm;
     }
 
-    const books = document.querySelector("#books");
-    varibs.books.forEach(book => {
+    const books = document.getElementById("books");
+    if(varibs.libraryBack){
+        books.style.backgroundImage = 'url("/background/library.jpg")';
+    }
+
+    var mode = varibs.order;
+    var lib = varibs.books;
+
+    if(mode == "none_added"){
+        // none_added is already done
+    }else if(mode == "none_abc"){
+        lib = lib.sort((a, b) => abcSort(a, b));
+    }else{
+        var wasReaded = lib.filter(book => book.last_read != "never");
+        let wasNotReaded = lib.filter(book => book.last_read == "never");
+
+        wasReaded.sort((a,b) => {
+            return new Date(b.last_read) - new Date(a.last_read);
+        });
+
+        if(mode == "last_abc") wasNotReaded.sort((a, b) => abcSort(a, b));
+
+        lib = wasReaded.concat(wasNotReaded);
+    }
+
+    lib.forEach(book => {
         books.appendChild(createBook(book));
     });
+
 
     document.querySelectorAll("#books>.book").forEach(book1 => {
         book1.addEventListener('click', book => {
@@ -50,9 +76,20 @@ window.onload = () => {
     document.querySelector("#info .continue").addEventListener("click", event => {
         let file = document.querySelector("#info .file").textContent;
         if(file === undefined) return;
-
-        var xhttp = new XMLHttpRequest();
-        xhttp.open("GET", "/openbook/" + file, true);
-        xhttp.send();
+        toBook(file);
     });
 }
+
+const abcSort = (a, b) => {
+    var nameA = a.name.toUpperCase();
+    var nameB = b.name.toUpperCase();
+    if (nameA < nameB) {
+      return -1;
+    }
+
+    if (nameA > nameB) {
+      return 1;
+    }
+
+    return 0;
+};

@@ -1,5 +1,5 @@
 #library, #info, #books{
-    height: calc(100% + 1px);
+    height: 100%;
 }
 
 #library{
@@ -11,7 +11,7 @@
     display: flex;
 }
 
-#library .file{
+#library .file, #library .last_read{
     display: none;
 }
 
@@ -57,6 +57,8 @@
     flex-grow: 1;
     overflow-y: auto;
     user-select: none;
+    background-size: cover;
+    background-position: center;
 }
 
 #books[view=bookshelf]{
@@ -66,6 +68,7 @@
     grid-template-rows: auto;
     min-width: calc(200px + 2 * var(--library-gap));
     padding: var(--library-gap);
+    justify-items: center;
     padding-bottom: 0;
     column-gap: var(--library-gap);
 }
@@ -87,9 +90,10 @@
 
 #books[view=bookshelf] .book{
     height: fit-content;
-    max-width: 300px;
+    max-width: 280px;
     margin-bottom: var(--library-gap);
     overflow-wrap: anywhere;
+    width: 100%;
 }
 
 #books[view=list] .book{
@@ -148,7 +152,7 @@
 #books[view=bookshelf] .book .cover::before{
     content: "";
     display: block;
-    padding-top: 160%;
+    padding-top: 156%;
 }
 
 #books[view=bookshelf] .book .cover img{
@@ -157,6 +161,7 @@
     left: 0;
     bottom: 0;
     right: 0;
+    height: 100%;
     width: 100%;
 }
 

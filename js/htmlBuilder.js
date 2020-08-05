@@ -1,4 +1,5 @@
 const fs = require("fs");
+const toShow = require("./publicSettings");
 
 module.exports = class htmlBuilder{    
     Library(){
@@ -18,6 +19,11 @@ module.exports = class htmlBuilder{
         return (this.getHeader(this.bookCss, this.bookScript, varibsJS) + this.getFooter()).toBuffer();
     }
 
+    Settings(settings, settingsPath){
+        let varibsJS = Object.assign({}, this.toRender, {"settings": JSON.stringify(settings), "toShow": JSON.stringify(toShow), "settingsPath": settingsPath});
+        return (this.getHeader(this.settingsCss, this.settingsScript, varibsJS) + this.getFooter()).toBuffer();
+    }
+
     setSettings(settings){
         this.settings = settings;
         this.toRender = this.get2Render();
@@ -33,7 +39,10 @@ module.exports = class htmlBuilder{
     }
 
     get2Render(){
-        return {"libraryPath": `${this.settings.library.path.split("\\").join("\\\\")}`};
+        let libBack = this.settings.library.background ? true : false;
+        let bokBack = this.settings.book.background ? true : false;
+
+        return {"libraryPath": `${this.settings.library.path.split("\\").join("\\\\")}`, "order": this.settings.library.order, "libraryBack": libBack, "bookBack": bokBack};
     }
     
     constructor(settings){
@@ -45,6 +54,8 @@ module.exports = class htmlBuilder{
         this.bookScript = fs.readFileSync('resources/js/book.js', "utf-8");
         this.libraryCSS = fs.readFileSync('resources/css/library.css', "utf8");
         this.libraryScript = fs.readFileSync('resources/js/library.js', "utf-8");
+        this.settingsCss = fs.readFileSync('resources/css/settings.css', "utf-8");
+        this.settingsScript = fs.readFileSync('resources/js/settingsScript.js', "utf-8");
         this.toRender = this.get2Render();
     }
 
@@ -83,7 +94,7 @@ module.exports = class htmlBuilder{
     </div>
     <div class="controls">
         <div id="minimize"></div>
-        <div id="size_changer" full="false"><span class="one"><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 11 11'><rect x='0.5' y='0.5' width='10' height='10' style='fill:none;stroke-miterlimit:10'/></svg></span><span class="two"><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'><polyline points='3.5 3.5 0.5 3.5 0.5 13.5 10.5 13.5 10.5 10.5 13.5 10.5 13.5 0.5 3.5 0.5 3.5 3.5 10.5 3.5 10.5 10.5' style='fill:none;stroke:#fff;stroke-miterlimit:10; stroke-width:1'/></svg></span></div>
+        <div id="size_changer" full="false"><span class="one"><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 11 11'><rect x='0.5' y='0.5' width='10' height='10' style='fill:none;stroke-miterlimit:10'/></svg></span><span class="two"><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'><polyline points='3.5 3.5 0.5 3.5 0.5 13.5 10.5 13.5 10.5 10.5 13.5 10.5 13.5 0.5 3.5 0.5 3.5 3.5 10.5 3.5 10.5 10.5' style='fill:none;stroke-miterlimit:10; stroke-width:1'/></svg></span></div>
         <div id="close"><span><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7.78 7.78'><line x1='0.35' y1='0.35' x2='7.42' y2='7.42' style='fill:none;stroke-miterlimit:10'/><line x1='7.42' y1='0.35' x2='0.35' y2='7.42' style='fill:none;stroke-miterlimit:10'/></svg></span></div>
     </div>
 </header>
