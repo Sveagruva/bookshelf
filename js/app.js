@@ -11,38 +11,30 @@ const scan = require("./scan");
 var Setings = new Settings();
 // const mime = require("./mime");
 
-var book, progressPath, progressBook, booksPath, coversPath, libBack, bookBack;
+var book, progressPath, progressBook, booksPath, coversPath, libraryBack, bookBack;
 var currentPage = "library";
 
 var settings = Setings.getSettings();
 const html = new htmlBuilder(settings);
 
+const calcPaths = libPath => {
+    booksPath = libPath + (process.platform === "win32" ? ".bookshelf/book.json" : ".bookshelf\\book.json");
+    progressPath = libPath + (process.platform === "win32" ? ".bookshelf\\progress\\" : ".bookshelf/progress/");
+    coversPath = libPath + (process.platform === "win32" ? ".bookshelf\\covers\\" : ".bookshelf/covers/");
+}
+
+calcPaths(settings.library.path);
 app.whenReady().then(async () => {
-    menu.setApplicationMenu(menu.buildFromTemplate([]));
-    const mainWindow = new BrowserWindow({width: 800, height: 600, frame: false, minWidth: 750, minHeight: 470, webPreferences: {
-        nodeIntegration: true,
-        enableRemoteModule: true
-    }});
-
-    mainWindow.setIcon('icon.ico');
-    await scan(settings.library.path, e => e);
-    updateBacks();
-    mainWindow.loadFile("/library.html");
-    mainWindow.webContents.openDevTools();
-    
-    mainWindow.on('closed', () => {
-        app.quit();
-    });
-
     protocol.interceptBufferProtocol('file', async (request, callback) => {
         request = request.url.slice(6);
         request = request.slice(request.indexOf(":")+2);
+
         if(request.slice(0,9) == "saveState"){
             request = request.slice(10);
             let sl = request.indexOf("/");
-
+    
             fs.writeFile(progressPath + book.name + ".bin", '{"page": ' + parseInt(request.slice(0, sl)) + ', "elm": ' + parseInt(request.slice(sl + 1)) + '}', { overwrite: true }, e => e);
-
+    
             callback({
                 data: Buffer.from("200", 'utf8')
             });
@@ -61,7 +53,7 @@ app.whenReady().then(async () => {
         }else if(request.slice(0, 5) == "cover"){
             request = request.slice(6);
             request = request.slice(0, -4);
-
+    
             fs.readFile(coversPath + decodeURI(request) + ".bin", "utf-8", (err, img) => {
                 callback({
                     data: Buffer.from(img, 'base64')
@@ -70,12 +62,12 @@ app.whenReady().then(async () => {
         }else if(request.slice(0, 8) == "openbook"){
             currentPage = "book";
             request = request.slice(9);
-
+    
             book = await new Epub(settings.library.path + decodeURI(request));
             setReadedNow(decodeURI(request));
-
+    
             progressBook = fs.readFileSync(progressPath + book.name + ".bin", "utf-8");
-
+    
             mainWindow.webContents.send('reload');
             mainWindow.loadFile("/book/app_book_" + book.name + ".html");
         }else if(request.slice(0, 11) == "openLibrary"){
@@ -83,7 +75,7 @@ app.whenReady().then(async () => {
             mainWindow.loadFile("/library.html");
         }else if(request.slice(0, 12) == "openSettings"){
             currentPage = "settings";
-
+    
             mainWindow.webContents.send('reload');
             mainWindow.loadFile("/settings.html");
         }else if(request.slice(0, 8) == "settings"){
@@ -139,6 +131,21 @@ app.whenReady().then(async () => {
         });
     }
 
+    menu.setApplicationMenu(menu.buildFromTemplate([]));
+    const mainWindow = new BrowserWindow({width: 800, height: 600, frame: false, minWidth: 750, minHeight: 470, webPreferences: {
+        nodeIntegration: true,
+        enableRemoteModule: true
+    }});
+
+    await scan(settings.library.path, e => e);
+    updateBacks();
+
+    mainWindow.loadFile("/library.html");
+    
+    mainWindow.on('closed', () => {
+        app.quit();
+    });
+
     Localshortcut.register(mainWindow, 'Right', () => mainWindow.webContents.send('moveForward'));
     Localshortcut.register(mainWindow, 'Up', () => mainWindow.webContents.send('moveForward'));
     Localshortcut.register(mainWindow, 'Down', () => mainWindow.webContents.send('moveBack'));
@@ -146,8 +153,8 @@ app.whenReady().then(async () => {
 
     mainWindow.on('unmaximize', () => mainWindow.webContents.executeJavaScript('document.getElementById("size_changer").setAttribute("full", "false");'));
     mainWindow.on('maximize', () => mainWindow.webContents.executeJavaScript('document.getElementById("size_changer").setAttribute("full", "true");'));
-
 });
+
 
 const setReadedNow = async file => {
     let books = JSON.parse(fs.readFileSync(booksPath, "utf-8"));
@@ -162,21 +169,13 @@ const setReadedNow = async file => {
 }
 
 const backgroundsData = request => {
-    console.log("req");
     if(request == "library.jpg") {
-        console.log("library");
         return libraryBack;
     }else if(request == "book.jpg"){
         return bookBack;
     }else{
         return Buffer.from("not found", 'utf8');
     }
-}
-
-const calcPaths = libPath => {
-    booksPath = libPath + (process.platform === "win32" ? ".epubreader/book.json" : ".epubreader\\book.json");
-    progressPath = libPath + (process.platform === "win32" ? ".epubreader\\progress\\" : ".epubreader/progress/");
-    coversPath = libPath + (process.platform === "win32" ? ".epubreader\\covers\\" : ".epubreader/covers/");
 }
 
 const updateBacks = () => {
@@ -188,5 +187,3 @@ const updateBacks = () => {
         bookBack = fs.readFileSync(settings.app.backgroundsDir + settings.book.background);
     }
 }
-
-calcPaths(settings.library.path);

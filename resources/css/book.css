@@ -3,11 +3,22 @@
     background-size: cover;
 }
 
+/* #book[view=scroll] iframe{
+    position: static;
+}
+
+#book[view=scroll]{
+    overflow-y: scroll;
+} */
+
+#book[view=auto] iframe, #book[view=one_page] iframe, #book[view=two_pages] iframe{
+    height: 100%;
+}
+
 iframe{
     position: absolute;
     top:0;bottom:0;
     left:0;right:0;
-    height: 100%;
     width: 100%;
     visibility: hidden;
     user-select: none;

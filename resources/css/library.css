@@ -12,7 +12,7 @@
 }
 
 #library .file, #library .last_read{
-    display: none;
+    display: none !important;
 }
 
 #info{
@@ -73,13 +73,13 @@
     column-gap: var(--library-gap);
 }
 
-#books[view=list]{
+#books[view=list_full], #books[view=list_short]{
     display: flex;
     width: 100%;
     flex-direction: column;
 }
 
-#books[view=list] + #info{
+#books[view=list_full] + #info , #books[view=list_short] + #info{
     display: none;
 }
 
@@ -96,50 +96,50 @@
     width: 100%;
 }
 
-#books[view=list] .book{
+#books[view=list_full] .book, #books[view=list_short] .book{
     height: var(--list-height);
     display: flex;
     min-width: 100%;
     width: fit-content;
 }
 
-#books[view=list] .book .cover{
+#books[view=list_full] .book .cover, #books[view=list_short] .book .cover{
     height: var(--list-height);
 }
 
-#books[view=list] .book .cover img{
+#books[view=list_full] .book .cover img, #books[view=list_short] .book .cover img{
     height: 100%;
 }
 
-#books[view=list] .book .info .description{
-    display: none;
+#books[view=list_short] .book .info .description{
+    display: none !important;
 }
 
-#books[view=list] .book .info{
+#books[view=list_full] .book .info, #books[view=list_short] .book .info{
     display: grid;
     padding-left: var(--library-gap);
     gap: var(--library-gap);
     flex-grow: 1;
 }
 
-#books[view=list][description=false] .book .info{
-    grid-template-columns: max-content max-content max-content max-content;
+#books[view=list_short] .book .info{
+    grid-template-columns: 1fr 25% 50px;
 }
 
-#books[view=list][description=true] .book .info{
-    grid-template-columns: max-content max-content max-content max-content minmax(200px, auto);
+#books[view=list_full] .book .info{
+    grid-template-columns: 30% 15% 50px 1fr;
 }
 
-#books[view=list] .book .info>div:not(.description){
+#books[view=list_full] .book .info>div:not(.description), #books[view=list_short] .book .info>div:not(.description){
     display: flex;
     align-items: center;
 }
 
-#books[view=list] .book .info>div{
+#books[view=list_full] .book .info>div, #books[view=list_short] .book .info>div{
     height: var(--list-height);
 }
 
-#books[view=list] .book .info .description{
+#books[view=list_full], .book .info .description #books[view=list_short] .book .info .description{
     overflow: auto;
 }
 

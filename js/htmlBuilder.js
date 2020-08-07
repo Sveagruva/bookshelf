@@ -5,12 +5,11 @@ module.exports = class htmlBuilder{
     Library(){
         let libraryPath = this.settings.library.path;
         let booksPath;
-        if(process.platform === "win32") booksPath = libraryPath + ".epubreader\\book.json";
-        else booksPath = libraryPath + ".epubreader/book.json";
+        if(process.platform === "win32") booksPath = libraryPath + ".bookshelf\\book.json";
+        else booksPath = libraryPath + ".bookshelf/book.json";
 
         let books = JSON.parse(fs.readFileSync(booksPath, "utf-8"));
         let html = '<div id="library"><div id="books" view="bookshelf" description="false"></div><!-- bookshelf list --><div id="info"><div class="meta"><div class="title"></div><div class="creator"></div><div class="time"></div><div class="description"></div><div class="file"></div></div><div class="continue" book="">continue</div></div></div>';
-    
         return (this.getHeader(this.libraryCSS, this.libraryScript, Object.assign({}, this.toRender, {"books": books})) + html + this.getFooter()).toBuffer();
     }
 
@@ -42,12 +41,19 @@ module.exports = class htmlBuilder{
         let libBack = this.settings.library.background ? true : false;
         let bokBack = this.settings.book.background ? true : false;
 
-        return {"libraryPath": `${this.settings.library.path.split("\\").join("\\\\")}`, "order": this.settings.library.order, "libraryBack": libBack, "bookBack": bokBack};
+        return {
+            "libraryPath": `${this.settings.library.path.split("\\").join("\\\\")}`, 
+            "order": this.settings.library.order,
+            "libraryBack": libBack, "bookBack": bokBack,
+            "bookView": this.settings.book.view,
+            "textColor": this.settings.css.text,
+            "libraryView": this.settings.library.view
+        };
     }
     
     constructor(settings){
         this.settings = settings;
-        this.controls = fs.readFileSync('resources/js/controls.js');
+        this.controls = fs.readFileSync('resources/js/controls.js', "utf8");
         this.style = fs.readFileSync('resources/css/style.css', "utf8");
 
         this.bookCss = fs.readFileSync('resources/css/book.css', "utf-8");
@@ -83,7 +89,7 @@ module.exports = class htmlBuilder{
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="default-src file: 'unsafe-inline'; img-src file: 'self' data:" />
-    <title>Epubreader</title>
+    <title>Bookshelf</title>
 </head>
 <body>
 <header>

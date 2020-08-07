@@ -15,11 +15,15 @@ class Watcher{
     constructor(){
         this.observer = new IntersectionObserver(entries => {
             if(resizing) return;
-            let toppest;
+            let toppest = undefined;
             for (let i = 0; i < entries.length; i++) {
-                toppest = i;
-                if(entries[i].isIntersecting) break;
+                if((view == "scroll" && this.direction && !entries[i].isIntersecting) || (view == "scroll" && !this.direction && entries[i].isIntersecting) || (view != "scroll" && entries[i].isIntersecting)){
+                    toppest = i;
+                    break;
+                }
             }
+
+            if(toppest == undefined) return;
 
             mount.point = entries[toppest].target;
 
@@ -46,7 +50,10 @@ class Watcher{
     }
 }
 
+const view = varibs.bookView;
+var state = window.innerWidth > window.innerHeight;
 const spine = JSON.parse(varibs.spine);
+const textColor = varibs.textColor;
 const gap = parseInt(varibs.gap);
 const fontFamily = varibs.fontFamily;
 const progress = JSON.parse(varibs.progress);
@@ -56,6 +63,13 @@ const watcher = new Watcher();
 var timeoutResize;
 
 window.addEventListener("resize", () => {
+    if(view == "auto" && state != window.innerWidth > window.innerHeight){
+        state = window.innerWidth > window.innerHeight;
+        document.querySelectorAll("#book iframe").forEach(book => {
+            setViewIframe(book, view);
+        });
+    }
+
     if(resizing){
         clearTimeout(timeoutResize);
     }
@@ -68,12 +82,12 @@ window.addEventListener("resize", () => {
             left: Math.floor(watcher.container[mountLocal.index].offsetLeft/(current.contentWindow.innerWidth + gap))*(current.contentWindow.innerWidth + gap)
         });
         mount = Object.assign({}, mountLocal);
-    }, 20);
+    }, 40);
 
     timeoutResize = window.setTimeout(() => {
         resizing = false;
         unblurApp();
-    }, 25);
+    }, 60);
 });
 
 const allChilds = (element, array) => {
@@ -136,11 +150,23 @@ const addStandardStyles = iframe => {
             height: 100% !important;
             margin: 0 !important;
             padding: 0 !important;
-            column-gap: ${gap}px !important;
-            column-count: 2 !important;
             overflow: hidden;
-            color: white;
+            color: ${textColor};
             font-family: ${fontFamily};
+        }
+
+        ::-webkit-scrollbar {     
+            display: none;
+        }
+
+        body[view=two_pages]{
+            column-count: 2 !important;
+            column-gap: ${gap}px !important;
+        }
+
+        body[view=one_page]{
+            column-count: 1 !important;
+            column-gap: ${gap}px !important;
         }
 
         html{
@@ -149,8 +175,30 @@ const addStandardStyles = iframe => {
         }
     `;
     iframe.contentDocument.head.appendChild(style);
-    iframe.setAttribute("load", "true");// <================ Not only adding styles
+    setViewIframe(iframe, view);// <======================== Not only adding styles
+    if(view == "scroll"){
+        iframe.height = iframe.contentDocument.body.scrollHeight + "px !important";
+        // iframe.contentWindow.onscroll = e => {
+        //     watcher.direction = lastScroll < e.path[1].pageYOffset;
+        //     lastScroll = e.path[1].pageYOffset;
+        // }
+    }    
+    iframe.setAttribute("load", "true");
     style = null;
+}
+
+var lastScroll = 0;
+
+const setViewIframe = (iframe, view) => {
+    if(view == "auto") {
+        if(state){
+            iframe.contentDocument.body.setAttribute("view", "two_pages");
+        }else{
+            iframe.contentDocument.body.setAttribute("view", "one_page");
+        }
+    }else{
+        iframe.contentDocument.body.setAttribute("view", view);
+    }
 }
 
 window.onload = async () => {
@@ -185,11 +233,9 @@ window.onload = async () => {
     forward.before(bookElm);
     bookElm.setAttribute("id", "book");
 
+    bookElm.setAttribute("view", view);
 
     const sidePadding = window.getComputedStyle(book).margin.replace('px','');
-
-
-
 
 
     let TempleSides = [
@@ -216,28 +262,45 @@ window.onload = async () => {
         ]
     ));
 
+
+
+
     mount.page = progress.page;
     var ifrm = createIframe(true, bookElm, spine[mount.page], mount.page);
     ifrm.onload = e => {
         addStandardStyles(e.target);
-        watcher.watch(allChilds(e.target.contentDocument.body, new Array()), true);
-        mount.index = progress.elm;
-        e.target.contentWindow.scroll({
-            left: Math.floor(watcher.container[progress.elm].offsetLeft/(e.target.contentWindow.innerWidth + gap))*(e.target.contentWindow.innerWidth + gap)
-        });
+        if(view == "scroll"){
+            watcher.watch(allChilds(e.target.contentDocument.body, new Array()), true);
+            mount.index = progress.elm;
+            bookElm.scroll({
+                top: watcher.container[progress.elm].getBoundingClientRect().top
+            });
+        }else{
+            watcher.watch(allChilds(e.target.contentDocument.body, new Array()), true);
+            mount.index = progress.elm;
+            e.target.contentWindow.scroll({
+                left: Math.floor(watcher.container[progress.elm].offsetLeft/(e.target.contentWindow.innerWidth + gap))*(e.target.contentWindow.innerWidth + gap)
+            });
+        }
     }
 
     setVisible(ifrm);
 
     if(mount.page > 0){
         ifrm = createIframe(false, ifrm, spine[mount.page - 1], mount.page - 1);
+        setHide(ifrm);
         ifrm.onload = e => {
             addStandardStyles(e.target);
-            e.target.contentWindow.scroll({
-                left: e.target.contentDocument.body.scrollWidth
-            });
+            if(view == "scroll"){
+                bookElm.scroll({
+                    top: watcher.container[progress.elm].getBoundingClientRect().top
+                });
+            }else{
+                e.target.contentWindow.scroll({
+                    left: e.target.contentDocument.body.scrollWidth
+                });
+            }
         }
-        setHide(ifrm);
     }
 
     if(spine.length > 1){
@@ -245,6 +308,15 @@ window.onload = async () => {
         ifrm.onload = e => addStandardStyles(e.target);
         setHide(ifrm);
     }
+
+    if(view == "scroll"){
+        bookElm.addEventListener('scroll', e => {
+            console.log(e.target.scrollTop);
+            watcher.direction = lastScroll < e.target.pageYOffset;
+            lastScroll = e.target.pageYOffset;
+        });
+    }
+
 
 
     const nextIf = current => {

@@ -101,10 +101,11 @@ module.exports = {
                 },{
                     "name": "one page",
                     "value": "one_page"
-                },{
-                    "name": "scroll",
-                    "value": "scroll"
                 }
+                // },{
+                //     "name": "scroll",
+                //     "value": "scroll"
+                // }
             ]
         },{
             "name": "book background",

@@ -1,15 +1,19 @@
 {
-  "name": "epub_reader",
+  "name": "bookshelf",
   "version": "1.0.0",
-  "description": "Organizes a library from your books and let you read them at any time",
+  "description": "Organizes a library from your books",
   "main": "js/app.js",
   "scripts": {
     "start": "electron .",
     "pack": "electron-builder --dir",
     "dist": "electron-builder"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sveagruva/bookshelf"
+  },
   "build": {
-    "appId": "sveagruva/epub_reader",
+    "appId": "sveagruva/bookshelf",
     "extraResources": [
       {
         "from": "resources",

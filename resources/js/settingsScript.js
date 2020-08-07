@@ -15,7 +15,7 @@ const addText = (elm, tx) => {
     return elm;
 }
 
-const createInput = (type, name, id, value, boolka) => {
+const createInput = (type, name, id, value) => {
     let input = document.createElement("input");
     input.setAttribute("type", type);
     input.setAttribute("name", name);

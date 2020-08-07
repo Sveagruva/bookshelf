@@ -28,22 +28,26 @@ module.exports = class{
     }
 
     setHiddenFolder(libraryPath){
-        if(!fs.existsSync(libraryPath + ".epubreader")){
-            fs.mkdirSync(libraryPath + ".epubreader");
-            hide.hideSync(libraryPath + ".epubreader");
+        if(!fs.existsSync(libraryPath)){
+            fs.mkdirSync(libraryPath);
+        }
+
+        if(!fs.existsSync(libraryPath + ".bookshelf")){
+            fs.mkdirSync(libraryPath + ".bookshelf");
+            hide.hideSync(libraryPath + ".bookshelf");
         }
 
         let coversPath;
-        if(process.platform === "win32") coversPath = libraryPath + ".epubreader\\covers";
-        else coversPath = libraryPath + ".epubreader/covers";
+        if(process.platform === "win32") coversPath = libraryPath + ".bookshelf\\covers";
+        else coversPath = libraryPath + ".bookshelf/covers";
 
         let booksPath;
-        if(process.platform === "win32") booksPath = libraryPath + ".epubreader\\book.json";
-        else booksPath = libraryPath + ".epubreader/book.json";
+        if(process.platform === "win32") booksPath = libraryPath + ".bookshelf\\book.json";
+        else booksPath = libraryPath + ".bookshelf/book.json";
 
         let progressPath;
-        if(process.platform === "win32") progressPath = libraryPath + ".epubreader\\progress";
-        else progressPath = libraryPath + ".epubreader/progress";
+        if(process.platform === "win32") progressPath = libraryPath + ".bookshelf\\progress";
+        else progressPath = libraryPath + ".bookshelf/progress";
 
         if(!fs.existsSync(progressPath)){
             fs.mkdirSync(progressPath);

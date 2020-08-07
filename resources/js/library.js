@@ -37,6 +37,8 @@ window.onload = () => {
         books.style.backgroundImage = 'url("/background/library.jpg")';
     }
 
+    books.setAttribute("view", varibs.libraryView);
+
     var mode = varibs.order;
     var lib = varibs.books;
 
@@ -64,12 +66,18 @@ window.onload = () => {
 
     document.querySelectorAll("#books>.book").forEach(book1 => {
         book1.addEventListener('click', book => {
-            book = book.currentTarget ;
-            document.querySelector("#info .meta .title").textContent = book.querySelector(".info .name").textContent;
-            document.querySelector("#info .meta .creator").textContent = book.querySelector(".info .autor").textContent;
-            document.querySelector("#info .meta .time").textContent = book.querySelector(".info .time").textContent;
-            document.querySelector("#info .meta .description").textContent = book.querySelector(".info .description").textContent;
-            document.querySelector("#info .meta .file").textContent = book.querySelector(".info .file").textContent;
+            if(varibs.libraryView == "bookshelf"){
+                book = book.currentTarget ;
+                document.querySelector("#info .meta .title").textContent = book.querySelector(".info .name").textContent;
+                document.querySelector("#info .meta .creator").textContent = book.querySelector(".info .autor").textContent;
+                document.querySelector("#info .meta .time").textContent = book.querySelector(".info .time").textContent;
+                document.querySelector("#info .meta .description").textContent = book.querySelector(".info .description").textContent;
+                document.querySelector("#info .meta .file").textContent = book.querySelector(".info .file").textContent;
+            }else{
+                let file = book.currentTarget.querySelector(".file").textContent;
+                if(file === undefined) return;
+                toBook(file);
+            }
         });
     });
 
