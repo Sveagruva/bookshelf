@@ -26,7 +26,7 @@ const calcPaths = libPath => {
 calcPaths(settings.library.path);
 app.whenReady().then(async () => {
     protocol.interceptBufferProtocol('file', async (request, callback) => {
-        request = request.url.slice(6);
+        request = process.platform === "win32" ? request.url.slice(6) : request.url.slice(7);
         request = request.slice(request.indexOf(":")+2);
 
         if(request.slice(0,9) == "saveState"){

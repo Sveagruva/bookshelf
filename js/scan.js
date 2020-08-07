@@ -2,7 +2,7 @@ const fs = require("fs");
 const Epub = require('./epub');
 
 module.exports = async (libraryPath, callback) => {
-    let booksPath = libraryPath + (process.platform === "win32" ? ".bookshelf/book.json" : ".bookshelf\\book.json");
+    let booksPath = libraryPath + (process.platform === "win32" ? ".bookshelf\\book.json" : ".bookshelf/book.json");
     let progressPath = libraryPath + (process.platform === "win32" ? ".bookshelf\\progress\\" : ".bookshelf/progress/");
     let coversPath = libraryPath + (process.platform === "win32" ? ".bookshelf\\covers\\" : ".bookshelf/covers/");
 
