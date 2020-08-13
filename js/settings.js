@@ -1,14 +1,11 @@
 const {app} = require('electron');
-const fs = require("fs");
-const hide = require("hidefile");
+const fs = require('fs');
+const hide = require('hidefile');
+const p = require('path');
 
 module.exports = class{
     constructor(){
-        var settingsPath;
-        if(process.platform === "win32") settingsPath = app.getPath('exe').slice(0, app.getPath('exe').lastIndexOf("\\") + 1);
-        else settingsPath = app.getPath('exe').slice(0, app.getPath('exe').lastIndexOf("/") + 1);
-
-        settingsPath += "settings.json";
+        var settingsPath = p.join(app.getPath("userData"), "settings.json");
         this.settingsPath = settingsPath;
 
         let defaultSettings = this.getDefault();
@@ -32,22 +29,14 @@ module.exports = class{
             fs.mkdirSync(libraryPath);
         }
 
-        if(!fs.existsSync(libraryPath + ".bookshelf")){
-            fs.mkdirSync(libraryPath + ".bookshelf");
-            hide.hideSync(libraryPath + ".bookshelf");
+        if(!fs.existsSync(p.join(libraryPath, ".bookshelf"))){
+            fs.mkdirSync(p.join(libraryPath, ".bookshelf"));
+            hide.hideSync(p.join(libraryPath, ".bookshelf"));
         }
 
-        let coversPath;
-        if(process.platform === "win32") coversPath = libraryPath + ".bookshelf\\covers";
-        else coversPath = libraryPath + ".bookshelf/covers";
-
-        let booksPath;
-        if(process.platform === "win32") booksPath = libraryPath + ".bookshelf\\book.json";
-        else booksPath = libraryPath + ".bookshelf/book.json";
-
-        let progressPath;
-        if(process.platform === "win32") progressPath = libraryPath + ".bookshelf\\progress";
-        else progressPath = libraryPath + ".bookshelf/progress";
+        let coversPath = p.join(libraryPath, ".bookshelf", "covers");
+        let booksPath = p.join(libraryPath, ".bookshelf", "book.json");
+        let progressPath = p.join(libraryPath, ".bookshelf", "progress");
 
         if(!fs.existsSync(progressPath)){
             fs.mkdirSync(progressPath);
@@ -76,15 +65,10 @@ module.exports = class{
     }
 
     getDefault(){
-        var libraryPath = app.getPath("documents");
-        if(process.platform === "win32") libraryPath += "\\library\\";
-        else libraryPath += "/library/";
+        let libraryPath = p.join(app.getPath("documents"), "library");
+        let backgroundsDir = p.join(app.getPath("userData"), "backgrounds");
 
-        var backgroundsDir;
-        if(process.platform === "win32") backgroundsDir = app.getPath('exe').slice(0, app.getPath('exe').lastIndexOf("\\") + 1) + "backgrounds\\";
-        else backgroundsDir = app.getPath('exe').slice(0, app.getPath('exe').lastIndexOf("/") + 1) + "backgrounds/";
-
-        var defaultSettings = { // for all posible options see publicSettings.js
+        return { // for all posible options see publicSettings.js
             css: {
                 "primary": "#383838",
                 "accent": "#343538",
@@ -106,13 +90,12 @@ module.exports = class{
             },
             book: {
                 "view": "two_pages",
-                "background": false
+                "background": false,
+                "FS": "18px"
             },
             app: {
                 "backgroundsDir": backgroundsDir
             }
         }
-
-        return defaultSettings;
     }
 }

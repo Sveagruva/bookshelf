@@ -1,15 +1,14 @@
-const fs = require("fs");
-const toShow = require("./publicSettings");
+const fs = require('fs');
+const p = require('path');
+const toShow = require('./publicSettings');
 
 module.exports = class htmlBuilder{    
     Library(){
         let libraryPath = this.settings.library.path;
-        let booksPath;
-        if(process.platform === "win32") booksPath = libraryPath + ".bookshelf\\book.json";
-        else booksPath = libraryPath + ".bookshelf/book.json";
+        let booksPath = p.join(libraryPath, ".bookshelf", "book.json");
 
         let books = JSON.parse(fs.readFileSync(booksPath, "utf-8"));
-        let html = '<div id="library"><div id="books" view="bookshelf" description="false"></div><!-- bookshelf list --><div id="info"><div class="meta"><div class="title"></div><div class="creator"></div><div class="time"></div><div class="description"></div><div class="file"></div></div><div class="continue" book="">continue</div></div></div>';
+        let html = '<div id="library"><div id="books" view="bookshelf" description="false"></div><div id="info"><div class="meta"><div class="title"></div><div class="creator"></div><div class="time"></div><div class="description"></div><div class="file"></div></div><div class="continue" book="">continue</div></div></div>';
         return (this.getHeader(this.libraryCSS, this.libraryScript, Object.assign({}, this.toRender, {"books": books})) + html + this.getFooter()).toBuffer();
     }
 
@@ -47,21 +46,22 @@ module.exports = class htmlBuilder{
             "libraryBack": libBack, "bookBack": bokBack,
             "bookView": this.settings.book.view,
             "textColor": this.settings.css.text,
-            "libraryView": this.settings.library.view
+            "libraryView": this.settings.library.view,
+            "FS_book": this.settings.book.FS
         };
     }
     
-    constructor(settings){
+    constructor(settings, appPath){
         this.settings = settings;
-        this.controls = fs.readFileSync('resources/js/controls.js', "utf8");
-        this.style = fs.readFileSync('resources/css/style.css', "utf8");
+        this.controls = fs.readFileSync(p.join(appPath, 'resources/js/controls.js'), "utf8");
+        this.style = fs.readFileSync(p.join(appPath, 'resources/css/style.css'), "utf8");
 
-        this.bookCss = fs.readFileSync('resources/css/book.css', "utf-8");
-        this.bookScript = fs.readFileSync('resources/js/book.js', "utf-8");
-        this.libraryCSS = fs.readFileSync('resources/css/library.css', "utf8");
-        this.libraryScript = fs.readFileSync('resources/js/library.js', "utf-8");
-        this.settingsCss = fs.readFileSync('resources/css/settings.css', "utf-8");
-        this.settingsScript = fs.readFileSync('resources/js/settingsScript.js', "utf-8");
+        this.bookCss = fs.readFileSync(p.join(appPath, 'resources/css/book.css'), "utf-8");
+        this.bookScript = fs.readFileSync(p.join(appPath, 'resources/js/book.js'), "utf-8");
+        this.libraryCSS = fs.readFileSync(p.join(appPath, 'resources/css/library.css'), "utf8");
+        this.libraryScript = fs.readFileSync(p.join(appPath, 'resources/js/library.js'), "utf-8");
+        this.settingsCss = fs.readFileSync(p.join(appPath, 'resources/css/settings.css'), "utf-8");
+        this.settingsScript = fs.readFileSync(p.join(appPath, 'resources/js/settingsScript.js'), "utf-8");
         this.toRender = this.get2Render();
     }
 

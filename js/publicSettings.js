@@ -51,15 +51,15 @@ module.exports = {
                     "name": "bookshelf",
                     "value": "bookshelf"
                 },{
-                    "name": "list_full",
+                    "name": "list with description",
                     "value": "list_full"
                 },{
-                    "name": "list_short",
+                    "name": "list without description",
                     "value": "list_short"
                 }
             ]
         },{
-            "name": "library location",
+            "name": "library location(in development)",
             "type": "folder",
             "setting_name": "path"
         },{
@@ -111,6 +111,10 @@ module.exports = {
             "name": "book background",
             "type": "image",
             "setting_name": "background"
+        },{
+            "name": "font size in a book",
+            "type": "text",
+            "setting_name": "FS"
         }
     ]
 }

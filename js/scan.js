@@ -1,10 +1,11 @@
 const fs = require("fs");
 const Epub = require('./epub');
+const p = require('path');
 
 module.exports = async (libraryPath, callback) => {
-    let booksPath = libraryPath + (process.platform === "win32" ? ".bookshelf\\book.json" : ".bookshelf/book.json");
-    let progressPath = libraryPath + (process.platform === "win32" ? ".bookshelf\\progress\\" : ".bookshelf/progress/");
-    let coversPath = libraryPath + (process.platform === "win32" ? ".bookshelf\\covers\\" : ".bookshelf/covers/");
+    let coversPath = p.join(libraryPath, ".bookshelf", "covers");
+    let booksPath = p.join(libraryPath, ".bookshelf", "book.json");
+    let progressPath = p.join(libraryPath, ".bookshelf", "progress");
 
     let books = JSON.parse(fs.readFileSync(booksPath, "utf-8"));
 
@@ -16,7 +17,7 @@ module.exports = async (libraryPath, callback) => {
     });
 
     fs.readdirSync(libraryPath).forEach(name => {
-        if(fs.statSync(libraryPath + name).isFile()){
+        if(fs.statSync(p.join(libraryPath, name)).isFile()){
             files.push(name);
         }
     });
@@ -36,7 +37,7 @@ module.exports = async (libraryPath, callback) => {
     var beforePush = books.length;
 
     filesNotIndexed.forEach(async file => {
-        let reading = await new Epub(libraryPath + file);
+        let reading = await new Epub(p.join(libraryPath, file));
         var meta = {};
 
         reading.meta.forEach(me => {
@@ -46,10 +47,10 @@ module.exports = async (libraryPath, callback) => {
         });
 
         reading.content[reading.root + reading.manifest[meta["cover"]].href].async("base64").then(async function(info){
-            fs.writeFile(coversPath + file + ".bin", info, { overwrite: true }, e => e);
+            fs.writeFile(p.join(coversPath, file + ".bin"), info, { overwrite: true }, e => e);
         });
 
-        fs.writeFile(progressPath + file + ".bin", '{"page": 0, "elm": 0}', { overwrite: true }, e => e);
+        fs.writeFile(p.join(progressPath, file + ".bin"), '{"page": 0, "elm": 0}', { overwrite: true }, e => e);
 
         books.push({
             "file": file,

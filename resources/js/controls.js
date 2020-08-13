@@ -1,6 +1,7 @@
 const {remote, ipcRenderer} = require('electron');
 const move = remote.require('./move');
 const fs = remote.require('fs');
+const p = remote.require('path');
 
 const fileDialog = arg => {
     var input = document.createElement('input');
@@ -8,12 +9,20 @@ const fileDialog = arg => {
     input.setAttribute('type', 'file');
     if(typeof arg !== undefined) {
         if(arg.multiple === true) input.setAttribute('multiple','');
-        if(arg.accept !== undefined) input.setAttribute('accept',arg.accept);
-        if(arg.folder !== undefined) input.toggleAttribute('webkitdirectory');
+        if(arg.accept !== undefined) input.setAttribute('accept', arg.accept);
+        if(arg.folder !== undefined){
+            input.toggleAttribute('webkitdirectory');
+            input.toggleAttribute('directory');
+        };
     }
 
     return new Promise(resolve => {
-        input.addEventListener('change', e => resolve(input.files));
+        if(arg.folder !== undefined){
+            input.addEventListener('change', e => resolve(input));
+        }else{
+            input.addEventListener('change', e => resolve(input.files));
+        }
+
 
         var e = document.createEvent('MouseEvents');
         e.initMouseEvent('click');
@@ -52,7 +61,7 @@ const addBook = async () => {
         var done = Array();
         for (let i = 0; i < files.length; i++){
             if(files[i].type != "application/epub+zip") continue;
-            let newPath = varibs.libraryPath + files[i].path.split('\\').pop().split('/').pop();
+            let newPath = p.join(varibs.libraryPath, p.parse(files[i].path).base);
             if(newPath === files[i].path) continue;
             (async (Path, oldPath) => {
                 let newPath = Path;

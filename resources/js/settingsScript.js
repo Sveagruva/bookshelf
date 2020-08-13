@@ -134,7 +134,7 @@ const saveBook = () => {
 
 const choosePath = () => {
     fileDialog({ multiple: false, folder: true }).then(files => {
-        console.log(files[0].path);
+        console.log(files);
         let path = process.platform === "win32" ? files[0].path.slice(0, files[0].path.lastIndexOf("\\") + 1) : files[0].path.slice(0, files[0].path.lastIndexOf("/") + 1);
         document.getElementById("library__path").setAttribute("value", path);
     });

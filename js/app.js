@@ -1,7 +1,8 @@
 //originally created by Sveagruva
 const electron = require('electron');
-const {app, BrowserWindow, protocol} = electron;
-const fs = require("fs");
+const {app, BrowserWindow, protocol, dialog} = electron;
+const p = require('path');
+const fs = require('fs');
 const Epub = require('./epub');
 const htmlBuilder = require('./htmlBuilder');
 const menu = electron.Menu;
@@ -15,12 +16,12 @@ var book, progressPath, progressBook, booksPath, coversPath, libraryBack, bookBa
 var currentPage = "library";
 
 var settings = Setings.getSettings();
-const html = new htmlBuilder(settings);
+const html = new htmlBuilder(settings, app.getAppPath());
 
 const calcPaths = libPath => {
-    booksPath = libPath + (process.platform === "win32" ? ".bookshelf/book.json" : ".bookshelf\\book.json");
-    progressPath = libPath + (process.platform === "win32" ? ".bookshelf\\progress\\" : ".bookshelf/progress/");
-    coversPath = libPath + (process.platform === "win32" ? ".bookshelf\\covers\\" : ".bookshelf/covers/");
+    coversPath = p.join(libPath, ".bookshelf", "covers");
+    booksPath = p.join(libPath, ".bookshelf", "book.json");
+    progressPath = p.join(libPath, ".bookshelf", "progress");
 }
 
 calcPaths(settings.library.path);
@@ -31,9 +32,7 @@ app.whenReady().then(async () => {
 
         if(request.slice(0,9) == "saveState"){
             request = request.slice(10);
-            let sl = request.indexOf("/");
-    
-            fs.writeFile(progressPath + book.name + ".bin", '{"page": ' + parseInt(request.slice(0, sl)) + ', "elm": ' + parseInt(request.slice(sl + 1)) + '}', { overwrite: true }, e => e);
+            fs.writeFile(p.join(progressPath, book.name + ".bin"), '{"page": ' + parseInt(request.slice(0, request.indexOf("/"))) + ', "elm": ' + parseInt(request.slice(request.indexOf("/") + 1)) + '}', { overwrite: true }, e => e);
     
             callback({
                 data: Buffer.from("200", 'utf8')
@@ -54,7 +53,7 @@ app.whenReady().then(async () => {
             request = request.slice(6);
             request = request.slice(0, -4);
     
-            fs.readFile(coversPath + decodeURI(request) + ".bin", "utf-8", (err, img) => {
+            fs.readFile(p.join(coversPath, decodeURI(request) + ".bin"), "utf-8", (err, img) => {
                 callback({
                     data: Buffer.from(img, 'base64')
                 });
@@ -62,11 +61,11 @@ app.whenReady().then(async () => {
         }else if(request.slice(0, 8) == "openbook"){
             currentPage = "book";
             request = request.slice(9);
-    
-            book = await new Epub(settings.library.path + decodeURI(request));
+            
+            book = await new Epub(p.join(settings.library.path, decodeURI(request)));
             setReadedNow(decodeURI(request));
     
-            progressBook = fs.readFileSync(progressPath + book.name + ".bin", "utf-8");
+            progressBook = fs.readFileSync(p.join(progressPath, book.name + ".bin"), "utf-8");
     
             mainWindow.webContents.send('reload');
             mainWindow.loadFile("/book/app_book_" + book.name + ".html");
@@ -180,10 +179,10 @@ const backgroundsData = request => {
 
 const updateBacks = () => {
     if(settings.library.background){
-        libraryBack = fs.readFileSync(settings.app.backgroundsDir + settings.library.background);
+        libraryBack = fs.readFileSync(p.join(settings.app.backgroundsDir + settings.library.background));
     }
 
     if(settings.book.background){
-        bookBack = fs.readFileSync(settings.app.backgroundsDir + settings.book.background);
+        bookBack = fs.readFileSync(p.join(settings.app.backgroundsDir + settings.book.background));
     }
 }

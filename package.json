@@ -1,12 +1,14 @@
 {
   "name": "bookshelf",
-  "version": "1.0.0",
+  "version": "0.1.0b",
   "description": "Organizes a library from your books",
   "main": "js/app.js",
+  "compression": "maximum",
   "scripts": {
     "start": "electron .",
     "pack": "electron-builder --dir",
-    "dist": "electron-builder"
+    "dist_win": "electron-builder",
+    "dist": "electron-builder --linux"
   },
   "repository": {
     "type": "git",
@@ -19,9 +21,26 @@
         "from": "resources",
         "to": ""
       }
-    ]
+    ],
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb",
+        "rpm",
+        "snap"
+      ],
+      "category": "Office"
+    },
+    "mac": {
+      "category": "public.app-category.entertainment"
+    }
   },
-  "author": "Sveagruva",
+  "author": { 
+    "name" : "Sveagruva",
+    "email" : "sveagruva@sveagruva.site",
+    "url" : "https://github.sveagruva.site/"
+  },
+  "mimeTypes" : ["application/epub+zip"],
   "license": "cc-by-nc-4.0",
   "devDependencies": {
     "electron": "^9.1.0",
