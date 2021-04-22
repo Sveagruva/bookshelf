@@ -30,80 +30,97 @@ app.whenReady().then(async () => {
         request = process.platform === "win32" ? request.url.slice(6) : request.url.slice(7);
         request = request.slice(request.indexOf(":")+2);
 
-        if(request.slice(0,9) == "saveState"){
-            request = request.slice(10);
-            fs.writeFile(p.join(progressPath, book.name + ".bin"), '{"page": ' + parseInt(request.slice(0, request.indexOf("/"))) + ', "elm": ' + parseInt(request.slice(request.indexOf("/") + 1)) + '}', { overwrite: true }, e => e);
-    
-            callback({
-                data: Buffer.from("200", 'utf8')
-            });
-        }else if(request.slice(0,7) == "library"){
-            currentPage = "library";
+        let requestPaths = request.split('/');
 
-            callback({
-                data: html.Library()
-            });
-        }else if(request.slice(0,4) == "book"){
-            bookHandler(request.slice(5)).then(info => {
+
+        switch (requestPaths[0]) {
+            case "saveState":
+                request = request.slice(10);
+                fs.writeFile(p.join(progressPath, book.name + ".bin"), '{"page": ' + parseInt(request.slice(0, request.indexOf("/"))) + ', "elm": ' + parseInt(request.slice(request.indexOf("/") + 1)) + '}', { overwrite: true }, e => e);
+        
                 callback({
-                    data: info
+                    data: Buffer.from("200", 'utf8')
                 });
-            })
-        }else if(request.slice(0, 5) == "cover"){
-            request = request.slice(6);
-            request = request.slice(0, -4);
-    
-            fs.readFile(p.join(coversPath, decodeURI(request) + ".bin"), "utf-8", (err, img) => {
+                break;
+
+            case "library":
+                currentPage = "library";
+
                 callback({
-                    data: Buffer.from(img, 'base64')
+                    data: html.Library()
                 });
-            });
-        }else if(request.slice(0, 8) == "openbook"){
-            currentPage = "book";
-            request = request.slice(9);
-            
-            book = await new Epub(p.join(settings.library.path, decodeURI(request)));
-            setReadedNow(decodeURI(request));
+                break;
+            case "book":
+                bookHandler(request.slice(5)).then(info => {
+                    callback({
+                        data: info
+                    });
+                });
+                break;
+            case "cover":
+                request = request.slice(6);
+                request = request.slice(0, -4);
+        
+                fs.readFile(p.join(coversPath, decodeURI(request) + ".bin"), "utf-8", (err, img) => {
+                    callback({
+                        data: Buffer.from(img, 'base64')
+                    });
+                });
+                break;
+            case "openbook":
+                currentPage = "book";
+                request = request.slice(9);
+                
+                book = await new Epub(p.join(settings.library.path, decodeURI(request)));
+                setReadedNow(decodeURI(request));
+        
+                progressBook = fs.readFileSync(p.join(progressPath, book.name + ".bin"), "utf-8");
+        
+                mainWindow.webContents.send('reload');
+                mainWindow.loadFile("/book/app_book_" + book.name);
+                break;
+            case "openLibrary":
+                mainWindow.webContents.send('reload');
+                mainWindow.loadFile("/library");
+                break;
+            case "openSettings":
+                currentPage = "settings";
     
-            progressBook = fs.readFileSync(p.join(progressPath, book.name + ".bin"), "utf-8");
-    
-            mainWindow.webContents.send('reload');
-            mainWindow.loadFile("/book/app_book_" + book.name + ".html");
-        }else if(request.slice(0, 11) == "openLibrary"){
-            mainWindow.webContents.send('reload');
-            mainWindow.loadFile("/library.html");
-        }else if(request.slice(0, 12) == "openSettings"){
-            currentPage = "settings";
-    
-            mainWindow.webContents.send('reload');
-            mainWindow.loadFile("/settings.html");
-        }else if(request.slice(0, 8) == "settings"){
-            callback({
-                data: html.Settings(settings, Setings.settingsPath)
-            });
-        }else if(request.slice(0, 10) == "background"){
-            callback({
-                data: backgroundsData(request.slice(11))
-            });
-        }else if(request.slice(0, 4) == "scan"){
-            scan(settings.library.path, () => {
-                if(currentPage == "library"){
-                    mainWindow.webContents.send('reload');
-                    mainWindow.loadFile("/library.html");
-                }
-            });
-        }else if(request.slice(0, 14) == "reloadSettings"){
-            Setings = new Settings();
-            settings = Setings.getSettings();
-            calcPaths(settings.library.path);
-            updateBacks();
-            html.setSettings(settings);
-            mainWindow.webContents.send('reload');
-            mainWindow.loadFile("/settings.html");
-        }else{
-            callback({
-                data: Buffer.from("not found", 'utf8')
-            });
+                mainWindow.webContents.send('reload');
+                mainWindow.loadFile("/settings");
+                break;
+            case "settings":
+                callback({
+                    data: html.Settings(settings, Setings.settingsPath)
+                });
+                break;
+            case "background":
+                callback({
+                    data: backgroundsData(request.slice(11))
+                });
+                break;
+            case "scan":
+                scan(settings.library.path, () => {
+                    if(currentPage == "library"){
+                        mainWindow.webContents.send('reload');
+                        mainWindow.loadFile("/library");
+                    }
+                });
+                break;
+            case "reloadSettings":
+                Setings = new Settings();
+                settings = Setings.getSettings();
+                calcPaths(settings.library.path);
+                updateBacks();
+                html.setSettings(settings);
+                mainWindow.webContents.send('reload');
+                mainWindow.loadFile("/settings");
+                break;
+            default:
+                callback({
+                    data: Buffer.from(`path ${requestPaths[0]} not found`, 'utf8')
+                });
+                break;
         }
     });
 
@@ -139,7 +156,7 @@ app.whenReady().then(async () => {
     await scan(settings.library.path, e => e);
     updateBacks();
 
-    mainWindow.loadFile("/library.html");
+    mainWindow.loadFile("/library");
     
     mainWindow.on('closed', () => {
         app.quit();
