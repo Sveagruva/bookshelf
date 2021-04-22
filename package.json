@@ -7,7 +7,7 @@
   "scripts": {
     "start": "electron .",
     "pack": "electron-builder --dir",
-    "dist_win": "electron-builder",
+    "dist_win": "electron-builder --windows",
     "dist": "electron-builder --linux"
   },
   "repository": {
@@ -35,12 +35,12 @@
       "category": "public.app-category.entertainment"
     }
   },
-  "author": { 
-    "name" : "Sveagruva",
-    "email" : "sveagruva@sveagruva.site",
-    "url" : "https://github.sveagruva.site/"
+  "author": {
+    "name": "Sveagruva"
   },
-  "mimeTypes" : ["application/epub+zip"],
+  "mimeTypes": [
+    "application/epub+zip"
+  ],
   "license": "cc-by-nc-4.0",
   "devDependencies": {
     "electron": "^9.4.0",
