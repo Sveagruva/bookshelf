@@ -1,5 +1,4 @@
 const {remote, ipcRenderer} = require('electron');
-const move = remote.require('./move');
 const fs = remote.require('fs');
 const p = remote.require('path');
 
@@ -71,7 +70,7 @@ const addBook = async () => {
                     nTry++;
                 }
 
-                move(oldPath, newPath).then(() => {
+                fs.rename(oldPath, newPath).then(() => {
                     done.push(i);
                     if(done.length == files.length){
                         var xhttp = new XMLHttpRequest();
@@ -114,9 +113,9 @@ window.addEventListener("load", onload);
 ipcRenderer.on('reload', gonnaClose);
 
 const blurApp = () => {
-    document.getElementById("content").setAttribute("blur", "true");
+    // document.getElementById("content").setAttribute("blur", "true");
 }
 
 const unblurApp = () => {
-    document.getElementById("content").setAttribute("blur", "false");
+    // document.getElementById("content").setAttribute("blur", "false");
 }

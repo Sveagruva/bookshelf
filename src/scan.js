@@ -1,5 +1,5 @@
 const fs = require("fs");
-const Epub = require('./epub');
+const Epub = require('./bookReaders/epub');
 const p = require('path');
 
 module.exports = async (libraryPath, callback) => {
@@ -37,7 +37,10 @@ module.exports = async (libraryPath, callback) => {
     var beforePush = books.length;
 
     filesNotIndexed.forEach(async file => {
-        let reading = await new Epub(p.join(libraryPath, file));
+
+        if(p.extname(file) !== 'epub') return callback();
+
+        let reading = await Epub(p.join(libraryPath, file));
         var meta = {};
 
         reading.meta.forEach(me => {

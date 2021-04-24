@@ -1,14 +1,14 @@
 {
   "name": "bookshelf",
-  "version": "0.1.0b",
+  "version": "0.2.0b",
   "description": "Organizes a library from your books",
-  "main": "js/app.js",
+  "main": "src/app.js",
   "compression": "maximum",
   "scripts": {
     "start": "electron .",
     "pack": "electron-builder --dir",
     "dist_win": "electron-builder --windows",
-    "dist": "electron-builder --linux"
+    "dist_linux": "electron-builder --linux"
   },
   "repository": {
     "type": "git",
@@ -36,7 +36,8 @@
     }
   },
   "author": {
-    "name": "Sveagruva"
+    "name": "Sveagruva",
+    "email" : "Sveagruva@example.com"
   },
   "mimeTypes": [
     "application/epub+zip"

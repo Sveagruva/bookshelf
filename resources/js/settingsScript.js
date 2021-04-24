@@ -46,7 +46,7 @@ const settingsPath = varibs.settingsPath;
 
 const saveImg = (name, elm) => {
     fileDialog({ multiple: false, accept: "image/*" }).then(files => {
-        move(files[0].path, settings.app.backgroundsDir + files[0].name + "." + name + ".bin").then(() => {});
+        fs.rename(files[0].path, settings.app.backgroundsDir + files[0].name + "." + name + ".bin").then(() => {});
         elm.setAttribute("value", files[0].name + "." + name + ".bin");
         let removeelm = createElementCl("remove");
         elm.before(addText(removeelm, "remove"));
