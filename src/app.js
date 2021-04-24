@@ -1,6 +1,6 @@
 //originally created by Sveagruva
 const electron = require('electron');
-const Router = require('./router');
+const Loader = require('./loader');
 const Window = require("./window");
 
 electron.Menu.setApplicationMenu(null);
@@ -8,9 +8,9 @@ process.env.NODE_ENV = 'debug';
 
 electron.app.whenReady().then(() => {
     const window = new Window();
-    const router = new Router(window);
+    const loader = new Loader(window);
 
-    electron.protocol.interceptBufferProtocol('file', router.route);
+    electron.protocol.interceptBufferProtocol('file', loader.load);
     
     window.setUrl("/app/home");
 });

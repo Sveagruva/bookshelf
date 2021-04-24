@@ -1,11 +1,11 @@
 const front = require("../front");
 
-module.exports = class Router {
+module.exports = class Loader {
     constructor(window){
         this.window = window;
     }
 
-    route = async (request, callback) => {
+    load = async (request, callback) => {
         const path = request.url.slice(8).split('/');
 
         const send = content => callback({

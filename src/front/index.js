@@ -12,9 +12,9 @@ module.exports = path => {
 </head>
 <body>
     <script type="javascript">
-         const ipc = require('electron').ipcRenderer;
-         ipc.send('hello','a string', 10);
-
+        const ipc = require('electron').ipcRenderer;
+        ipc.send('hello','a string', 10);
+        var electron = require('electron');
     
     </script>
 </body>
