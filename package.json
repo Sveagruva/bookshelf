@@ -37,12 +37,12 @@
   },
   "author": {
     "name": "Sveagruva",
-    "email" : "Sveagruva@example.com"
+    "email": "Sveagruva@example.com"
   },
   "mimeTypes": [
     "application/epub+zip"
   ],
-  "license": "cc-by-nc-4.0",
+  "license": "CC-BY-NC-4.0",
   "devDependencies": {
     "electron": "^9.4.0",
     "electron-builder": "^22.7.0"
