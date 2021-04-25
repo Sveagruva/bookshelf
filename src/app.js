@@ -10,7 +10,7 @@ electron.app.whenReady().then(() => {
     const window = new Window();
     const loader = new Loader(window);
 
-    electron.protocol.interceptBufferProtocol('file', loader.load);
+    electron.protocol.interceptStreamProtocol('file', loader.load);
     
     window.setUrl("/app/home");
 });
